@@ -25,17 +25,14 @@ function setup() {
   button.style('color', '#cc0000');
   button.style('border', '1px solid #cc0000');
   button.style('font-family', 'monospace');
-  button.position(width / 22, height / 12);
+  let btnX = width * 0.05;   // 5% from left
+  let btnY = height * 0.08;  // 8% from top
+  button.position(btnX, btnY);
+
   button.mousePressed(playSound);
 }
 
 function draw() {
-  function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  if (button) {
-    button.position(width / 22, height / 12);
-  }
-}
   if (messageShown) {
     // Freeze the last visual frame
     if (freezeFrame) {
@@ -79,6 +76,7 @@ function draw() {
 }
 
 function playSound() {
+  userStartAudio();
   if (!hasPlayed) {
     sound.play();
     hasPlayed = true;
