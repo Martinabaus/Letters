@@ -6,7 +6,7 @@ let messageShown = false;
 let freezeFrame;
 
 function preload() {
-  sound = loadSound('Vocaroo 31 Jul 2025 07_08_04 GMT+0200 1oWCOPEMkPSV.mp3'); // your audio
+  sound = loadSound('letter.mp3'); // your audio
 }
 
 function setup() {
@@ -30,6 +30,12 @@ function setup() {
 }
 
 function draw() {
+  function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  if (button) {
+    button.position(width / 22, height / 12);
+  }
+}
   if (messageShown) {
     // Freeze the last visual frame
     if (freezeFrame) {
