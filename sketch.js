@@ -99,22 +99,32 @@ function draw() {
 
 function playSound() {
   if (!hasPlayed) {
-    audioCtx.resume(); // iOS/Chrome requires resume after user gesture
+    audioCtx.resume(); // Resume context (for autoplay restrictions)
     audio.play();
     hasPlayed = true;
+
+    // Change button text + move to bottom
     button.html('playing...');
     button.attribute('disabled', '');
+    const bottomX = width / 2 - 50;
+    const bottomY = height * 0.9;
+    button.position(bottomX, bottomY);
 
     audio.onended = () => {
+      // Show stop icon back at center
       button.html('■');
-      button.attribute('disabled', '');
-      freezeFrame = get();
+      button.removeAttribute('disabled');
+      const centerX = width / 2 - 20;
+      const centerY = height / 2 - 20;
+      button.position(centerX, centerY);
+      button.style('color', '#cc0000');
+
+      // Show message and download
       messageShown = true;
       showDownloadButton();
     };
   }
 }
-
 function showDownloadButton() {
   let dl = createButton('⬇ download letter');
   dl.style('font-size', '14px');
