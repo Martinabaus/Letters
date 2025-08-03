@@ -45,7 +45,7 @@ function setup() {
 function centerButton() {
   const btnWidth = 80;
   const btnHeight = 40;
-  button.position((windowWidth - btnWidth) / 2, (windowHeight - btnHeight) / 2);
+  button.position((windowWidth - btnWidth) / 1.95, (windowHeight - btnHeight) / 2);
 }
 
 function windowResized() {
@@ -60,7 +60,7 @@ function draw() {
     noStroke();
     fill(0);
     textSize(10);
-    text("This voice lived once.\nThank you for listening.", width / 2, height / 2);
+    text("This voice lived once.\nThank you for listening.", width / 2, height / 1.2);
     return;
   }
 
