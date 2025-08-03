@@ -1,4 +1,8 @@
 let audio;
+let audioCtx;
+let analyser;
+let source;
+let dataArray;
 let hasPlayed = false;
 let button;
 let messageShown = false;
@@ -11,9 +15,21 @@ function setup() {
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
 
-  // Use native Audio API
+  // Setup audio
   audio = new Audio('letter.mp3');
+  audio.crossOrigin = "anonymous"; // if loading externally
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512; // Lower size for smoother values
+  let bufferLength = analyser.frequencyBinCount;
+  dataArray = new Uint8Array(bufferLength);
 
+  // Create audio source node
+  source = audioCtx.createMediaElementSource(audio);
+  source.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  // Play button
   button = createButton('▸');
   button.style('font-size', '16px');
   button.style('padding', '8px 16px');
@@ -51,6 +67,17 @@ function draw() {
   background(245);
   translate(width / 2, height / 2);
 
+  analyser.getByteTimeDomainData(dataArray);
+
+  // Get average volume
+  let sum = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    let val = dataArray[i] - 128;
+    sum += abs(val);
+  }
+  let average = sum / dataArray.length;
+  let amp = map(average, 0, 64, 0, 20); // Match your original
+
   stroke('#cc0000');
   strokeWeight(1.2);
   let rings = 20;
@@ -61,7 +88,7 @@ function draw() {
     beginShape();
     for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
       let noiseVal = noise(cos(a) + 1, sin(a) + 1, frameCount * 0.01 + i * 0.2);
-      let wave = map(noiseVal, 0, 1, -10, 10);
+      let wave = map(noiseVal, 0, 1, -amp, amp);
       let x = cos(a) * (r + wave);
       let y = sin(a) * (r + wave);
       vertex(x, y);
@@ -72,6 +99,7 @@ function draw() {
 
 function playSound() {
   if (!hasPlayed) {
+    audioCtx.resume(); // iOS/Chrome requires resume after user gesture
     audio.play();
     hasPlayed = true;
     button.html('playing...');
