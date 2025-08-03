@@ -7,53 +7,54 @@ let hasPlayed = false;
 let button;
 let messageShown = false;
 let freezeFrame;
+let alreadyVisited = false;
 
 function setup() {
+  alreadyVisited = localStorage.getItem('visited') === 'true';
+
   createCanvas(windowWidth, windowHeight);
   noFill();
   angleMode(RADIANS);
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
 
-  // Setup audio
-  audio = new Audio('letter.mp3');
-  audio.crossOrigin = "anonymous"; // if loading externally
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 512; // Lower size for smoother values
-  let bufferLength = analyser.frequencyBinCount;
-  dataArray = new Uint8Array(bufferLength);
+  if (!alreadyVisited) {
+    // Setup audio
+    audio = new Audio('letter.mp3');
+    audio.crossOrigin = "anonymous"; // if loading externally
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 512;
+    let bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
 
-  // Create audio source node
-  source = audioCtx.createMediaElementSource(audio);
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
+    source = audioCtx.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
 
-  // Play button
-  button = createButton('▸');
-  button.style('font-size', '16px');
-  button.style('padding', '8px 16px');
-  button.style('background', 'transparent');
-  button.style('color', '#cc0000');
-  button.style('border', '1px solid #cc0000');
-  button.style('font-family', 'monospace');
-  centerButton();
+    button = createButton('▸');
+    button.style('font-size', '16px');
+    button.style('padding', '8px 16px');
+    button.style('background', 'transparent');
+    button.style('color', '#cc0000');
+    button.style('border', '1px solid #cc0000');
+    button.style('font-family', 'monospace');
+    centerButton();
 
-  button.mousePressed(playSound);
-}
-
-function centerButton() {
-  const btnWidth = 80;
-  const btnHeight = 40;
-  button.position((windowWidth - btnWidth) / 1.95, (windowHeight - btnHeight) / 2);
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  centerButton();
+    button.mousePressed(playSound);
+  }
 }
 
 function draw() {
+  if (alreadyVisited) {
+    background(245);
+    fill(0);
+    textSize(12);
+    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
+    noLoop();
+    return;
+  }
+
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
 
@@ -69,14 +70,13 @@ function draw() {
 
   analyser.getByteTimeDomainData(dataArray);
 
-  // Get average volume
   let sum = 0;
   for (let i = 0; i < dataArray.length; i++) {
     let val = dataArray[i] - 128;
     sum += abs(val);
   }
   let average = sum / dataArray.length;
-  let amp = map(average, 0, 64, 0, 20); // Match your original
+  let amp = map(average, 0, 64, 0, 20);
 
   stroke('#cc0000');
   strokeWeight(1.2);
@@ -97,13 +97,25 @@ function draw() {
   }
 }
 
+function centerButton() {
+  const btnWidth = 80;
+  const btnHeight = 40;
+  button.position((windowWidth - btnWidth) / 1.95, (windowHeight - btnHeight) / 2);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  if (!alreadyVisited) {
+    centerButton();
+  }
+}
+
 function playSound() {
   if (!hasPlayed) {
-    audioCtx.resume(); // Resume context (for autoplay restrictions)
+    audioCtx.resume();
     audio.play();
     hasPlayed = true;
 
-    // Change button text + move to bottom
     button.html('playing...');
     button.attribute('disabled', '');
     const bottomX = width / 2 - 50;
@@ -111,20 +123,24 @@ function playSound() {
     button.position(bottomX, bottomY);
 
     audio.onended = () => {
-      // Show stop icon back at center
+      // Freeze frame
+      freezeFrame = get();
+
+      // Show stop icon again
       button.html('■');
       button.removeAttribute('disabled');
-      const centerX = width / 2 - 20;
-      const centerY = height / 2 - 20;
-      button.position(centerX, centerY);
+      button.position(width / 2 - 20, height / 2 - 20);
       button.style('color', '#cc0000');
 
-      // Show message and download
       messageShown = true;
       showDownloadButton();
+
+      // Mark this session as visited
+      localStorage.setItem('visited', 'true');
     };
   }
 }
+
 function showDownloadButton() {
   let dl = createButton('⬇ download letter');
   dl.style('font-size', '14px');
