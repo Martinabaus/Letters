@@ -1,13 +1,8 @@
-let sound;
-let amplitude;
+let audio;
 let hasPlayed = false;
 let button;
 let messageShown = false;
 let freezeFrame;
-
-function preload() {
-  sound = loadSound('letter.mp3');
-}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -16,25 +11,19 @@ function setup() {
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
 
-  amplitude = new p5.Amplitude();
+  // Use native Audio API
+  audio = new Audio('letter.mp3');
 
   button = createButton('▸');
-  button.style('font-size', '24px');
-  button.style('padding', '10px 20px');
+  button.style('font-size', '16px');
+  button.style('padding', '8px 16px');
   button.style('background', 'transparent');
   button.style('color', '#cc0000');
   button.style('border', '1px solid #cc0000');
   button.style('font-family', 'monospace');
-
-  // Center the button in the window
   centerButton();
 
   button.mousePressed(playSound);
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  centerButton();
 }
 
 function centerButton() {
@@ -43,15 +32,18 @@ function centerButton() {
   button.position((windowWidth - btnWidth) / 2, (windowHeight - btnHeight) / 2);
 }
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  centerButton();
+}
+
 function draw() {
   if (messageShown) {
-    if (freezeFrame) {
-      image(freezeFrame, 0, 0, width, height);
-    }
+    if (freezeFrame) image(freezeFrame, 0, 0);
 
     noStroke();
     fill(0);
-    textSize(12);
+    textSize(10);
     text("This voice lived once.\nThank you for listening.", width / 2, height / 2);
     return;
   }
@@ -59,21 +51,17 @@ function draw() {
   background(245);
   translate(width / 2, height / 2);
 
-  let level = amplitude.getLevel();
-  let amp = map(level, 0, 0.3, 0, 15); // Smaller movement
-
   stroke('#cc0000');
-  strokeWeight(1);
-
-  let rings = 20; // Fewer rings
-  let baseRadius = 40; // Smaller base
+  strokeWeight(1.2);
+  let rings = 20;
+  let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
-    let r = baseRadius + i * 5;
+    let r = baseRadius + i * 8;
     beginShape();
     for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
       let noiseVal = noise(cos(a) + 1, sin(a) + 1, frameCount * 0.01 + i * 0.2);
-      let wave = map(noiseVal, 0, 1, -amp, amp);
+      let wave = map(noiseVal, 0, 1, -10, 10);
       let x = cos(a) * (r + wave);
       let y = sin(a) * (r + wave);
       vertex(x, y);
@@ -83,17 +71,19 @@ function draw() {
 }
 
 function playSound() {
-  userStartAudio();
   if (!hasPlayed) {
-    sound.play();
+    audio.play();
     hasPlayed = true;
     button.html('playing...');
     button.attribute('disabled', '');
-    sound.onended(() => {
+
+    audio.onended = () => {
+      button.html('■');
+      button.attribute('disabled', '');
       freezeFrame = get();
       messageShown = true;
       showDownloadButton();
-    });
+    };
   }
 }
 
@@ -118,9 +108,9 @@ carried by breath and time.
 Now it lingers in your hands — 
 not just heard, but held.
 
-With warmth,  
+With warmth,
 M.
-  `.trim();
+`.trim();
 
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
