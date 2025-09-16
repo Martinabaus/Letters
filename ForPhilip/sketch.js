@@ -126,6 +126,8 @@ function playSound() {
     audio.play();
     hasPlayed = true;
 
+    localStorage.setItem('visited', 'true');
+
     button.html('playing...');
     button.attribute('disabled', '');
     const bottomX = width / 2 - 50;
