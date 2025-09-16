@@ -1,4 +1,4 @@
-let audio; 
+let audio;
 let audioCtx;
 let analyser;
 let source;
@@ -17,8 +17,6 @@ function setup() {
   angleMode(RADIANS);
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
-
-  colorMode(HSB, 360, 100, 100, 1); // HSB for fading colors
 
   if (!alreadyVisited) {
     // Setup audio
@@ -78,28 +76,31 @@ function draw() {
     sum += abs(val);
   }
   let average = sum / dataArray.length;
-  // Amplify a bit for more visible movement
-  let amp = map(average, 0, 64, 5, 35);
 
+  // baseAmp ensures subtle movement even when audio is quiet
+  let baseAmp = 5;
+  let amp = map(average, 0, 64, baseAmp, 25);
+
+  colorMode(HSB, 360, 100, 100);
   let rings = 20;
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
-    let hue = (frameCount * 2 + i * 18) % 360; // fading hue
-    stroke(hue, 80, 100); 
-    strokeWeight(1.2);
-
     let r = baseRadius + i * 8;
     beginShape();
     for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-      let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
+      let noiseVal = noise(cos(a) + 1, sin(a) + 1, frameCount * 0.02 + i * 0.2);
       let wave = map(noiseVal, 0, 1, -amp, amp);
       let x = cos(a) * (r + wave);
       let y = sin(a) * (r + wave);
       vertex(x, y);
     }
+    stroke((frameCount * 2 + i * 10) % 360, 80, 80); // color fades over time
+    strokeWeight(1.2);
     endShape(CLOSE);
   }
+
+  colorMode(RGB, 255);
 }
 
 function centerButton() {
@@ -156,13 +157,7 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = `
-
-Hey Keven,
-[... your full letter text ...]
-Martina
-`.trim();
-
+  let letterText = `...`; // your full letter text here
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
   let a = createA(url, 'letter.txt');
