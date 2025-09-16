@@ -48,8 +48,6 @@ function setup() {
 }
 
 function draw() {
- 
-  alreadyVisited = localStorage.getItem('visited') === 'true';
 
   if (alreadyVisited) {
     background(245);
@@ -124,6 +122,9 @@ function playSound() {
     audioCtx.resume();
     audio.play();
     hasPlayed = true;
+
+    localStorage.setItem('visited', 'true');
+    alreadyVisited = true;
 
     button.html('playing...');
     button.attribute('disabled', '');
