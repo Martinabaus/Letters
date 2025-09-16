@@ -1,4 +1,4 @@
-let audio;
+let audio; 
 let audioCtx;
 let analyser;
 let source;
@@ -18,10 +18,12 @@ function setup() {
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
 
+  colorMode(HSB, 360, 100, 100, 1); // HSB for fading colors
+
   if (!alreadyVisited) {
     // Setup audio
     audio = new Audio('Philip.mp3');
-    audio.crossOrigin = "anonymous"; // if loading externally
+    audio.crossOrigin = "anonymous";
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 512;
@@ -76,18 +78,22 @@ function draw() {
     sum += abs(val);
   }
   let average = sum / dataArray.length;
-  let amp = map(average, 0, 64, 0, 20);
+  // Amplify a bit for more visible movement
+  let amp = map(average, 0, 64, 5, 35);
 
-  stroke('#139a04ff');
-  strokeWeight(1.2);
   let rings = 20;
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
+    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 38); 
+    let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
+    stroke((hueOsc + hueNoise) % 360, 90, 100); 
+    strokeWeight(1.5);
+
     let r = baseRadius + i * 8;
     beginShape();
     for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-      let noiseVal = noise(cos(a) + 1, sin(a) + 1, frameCount * 0.01 + i * 0.2);
+      let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
       let wave = map(noiseVal, 0, 1, -amp, amp);
       let x = cos(a) * (r + wave);
       let y = sin(a) * (r + wave);
@@ -123,10 +129,8 @@ function playSound() {
     button.position(bottomX, bottomY);
 
     audio.onended = () => {
-      // Freeze frame
       freezeFrame = get();
 
-      // Show stop icon again
       button.html('■');
       button.removeAttribute('disabled');
       button.position(width / 2 - 20, height / 2 - 20);
@@ -135,7 +139,6 @@ function playSound() {
       messageShown = true;
       showDownloadButton();
 
-      // Mark this session as visited
       localStorage.setItem('visited', 'true');
     };
   }

@@ -22,7 +22,7 @@ function setup() {
 
   if (!alreadyVisited) {
     // Setup audio
-    audio = new Audio('Keven.mp3');
+    audio = new Audio('Monica.mp3');
     audio.crossOrigin = "anonymous";
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioCtx.createAnalyser();
@@ -38,8 +38,8 @@ function setup() {
     button.style('font-size', '16px');
     button.style('padding', '8px 16px');
     button.style('background', 'transparent');
-    button.style('color', '#1b9b05ff');
-    button.style('border', '1px solid #1b9b05ff');
+    button.style('color', '#26de06ff');
+    button.style('border', '1px solid #fefe02ff');
     button.style('font-family', 'monospace');
     centerButton();
 
@@ -134,7 +134,7 @@ function playSound() {
       button.html('■');
       button.removeAttribute('disabled');
       button.position(width / 2 - 20, height / 2 - 20);
-      button.style('color', '#f6de05ff');
+      button.style('color', '#26de06ff');
 
       messageShown = true;
       showDownloadButton();
