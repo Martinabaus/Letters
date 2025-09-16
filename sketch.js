@@ -154,17 +154,12 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = 
-Dear friend,
+  let letterText =
+'Dear friend, This letter was once spoken,carried by breath and time.Now it lingers in your hands — not just heard, but held.With warmth,M.'
 
-This letter was once spoken,
-carried by breath and time.
-Now it lingers in your hands — 
-not just heard, but held.
 
-With warmth,
-M.
-.trim();
+
+ .trim();
 
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
