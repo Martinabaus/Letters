@@ -129,6 +129,9 @@ function playSound() {
 
     button.html('playing...');
     button.attribute('disabled', '');
+
+    button.html('playing...');
+    button.attribute('disabled', '');
     const bottomX = width / 2 - 50;
     const bottomY = height * 0.9;
     button.position(bottomX, bottomY);
