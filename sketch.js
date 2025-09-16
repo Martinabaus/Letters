@@ -135,9 +135,11 @@ function playSound() {
       messageShown = true;
       showDownloadButton();
 
-      // Mark this session as visited
+      window.addEventListener('beforeunload', () => {
       localStorage.setItem('visited', 'true');
-    };
+
+      
+    });
   }
 }
 
@@ -172,4 +174,4 @@ M.
   a.attribute('download', 'letter.txt');
   a.hide();
   a.elt.click();
-}
+}}
