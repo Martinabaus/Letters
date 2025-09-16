@@ -135,11 +135,9 @@ function playSound() {
       messageShown = true;
       showDownloadButton();
 
-      window.addEventListener('beforeunload', () => {
+      // Mark this session as visited
       localStorage.setItem('visited', 'true');
-
-      
-    });
+    };
   }
 }
 
@@ -156,7 +154,7 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = `
+  let letterText = 
 Dear friend,
 
 This letter was once spoken,
@@ -166,7 +164,7 @@ not just heard, but held.
 
 With warmth,
 M.
-`.trim();
+.trim();
 
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
@@ -174,4 +172,4 @@ M.
   a.attribute('download', 'letter.txt');
   a.hide();
   a.elt.click();
-}}
+}

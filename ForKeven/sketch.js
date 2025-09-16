@@ -142,7 +142,6 @@ function playSound() {
       messageShown = true;
       showDownloadButton();
 
-      localStorage.setItem('visited', 'true');
     };
   }
 }
