@@ -10,15 +10,15 @@ let freezeFrame;
 let alreadyVisited = false;
 
 function setup() {
-  alreadyVisited = localStorage.getItem('visited') === 'true';
-
   createCanvas(windowWidth, windowHeight);
   noFill();
   angleMode(RADIANS);
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
+  colorMode(HSB, 360, 100, 100, 1);
 
-  colorMode(HSB, 360, 100, 100, 1); // HSB for fading colors
+  // Check if already visited
+  alreadyVisited = localStorage.getItem('visited') === 'true';
 
   if (!alreadyVisited) {
     // Setup audio
@@ -34,7 +34,7 @@ function setup() {
     source.connect(analyser);
     analyser.connect(audioCtx.destination);
 
-    // Play button
+    // Setup play button
     button = createButton('▸');
     button.style('font-size', '16px');
     button.style('padding', '8px 16px');
@@ -43,19 +43,21 @@ function setup() {
     button.style('border', '1px solid #f6de05ff');
     button.style('font-family', 'monospace');
     centerButton();
-
     button.mousePressed(playSound);
   }
 }
 
 function draw() {
-  if (alreadyVisited && !hasPlayed) {
-    // If session already visited, prevent replay
+  // Always check localStorage
+  alreadyVisited = localStorage.getItem('visited') === 'true';
+
+  if (alreadyVisited && !messageShown) {
+    // Show one-time message immediately on refresh
     background(245);
     fill(0);
     textSize(12);
     text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop();
+    noLoop(); // Stop the draw loop
     return;
   }
 
@@ -70,6 +72,7 @@ function draw() {
   }
 
   if (!alreadyVisited) {
+    // Animation code
     background(245);
     translate(width / 2, height / 2);
 
@@ -114,9 +117,7 @@ function centerButton() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (!alreadyVisited && button) {
-    centerButton();
-  }
+  if (!alreadyVisited) centerButton();
 }
 
 function playSound() {
@@ -124,10 +125,6 @@ function playSound() {
     audioCtx.resume();
     audio.play();
     hasPlayed = true;
-
-    // Lock session immediately to prevent refresh replay
-    alreadyVisited = true;
-    localStorage.setItem('visited', 'true');
 
     button.html('playing...');
     button.attribute('disabled', '');
@@ -144,6 +141,7 @@ function playSound() {
       button.style('color', '#f6de05ff');
 
       messageShown = true;
+      localStorage.setItem('visited', 'true'); // Lock the experience
       showDownloadButton();
     };
   }
@@ -163,12 +161,10 @@ function showDownloadButton() {
 
 function downloadLetter() {
   let letterText = `
-
 Hey Kevenino,
 
 Lately I've been thinking a lot about what it really means to live authentically...
-(Your letter content here)
-
+(Your letter text here)
 Martina
 `.trim();
 
