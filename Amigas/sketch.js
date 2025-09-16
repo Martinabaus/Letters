@@ -85,9 +85,6 @@ function draw() {
   let rings = 20;
   let baseRadius = 40;
 
-  let rings = 20;
-  let baseRadius = 40;
-
   for (let i = 0; i < rings; i++) {
     let hue = (frameCount * 2 + i * 18) % 360; // fading hue
     stroke(hue, 80, 100); 
