@@ -10,15 +10,13 @@ let freezeFrame;
 let alreadyVisited = false;
 
 function setup() {
+  alreadyVisited = localStorage.getItem('visited') === 'true';
+
   createCanvas(windowWidth, windowHeight);
   noFill();
   angleMode(RADIANS);
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
-  colorMode(HSB, 360, 100, 100, 1);
-
-  // Check if already visited
-  alreadyVisited = localStorage.getItem('visited') === 'true';
 
   if (!alreadyVisited) {
     // Setup audio
@@ -34,7 +32,6 @@ function setup() {
     source.connect(analyser);
     analyser.connect(audioCtx.destination);
 
-    // Setup play button
     button = createButton('▸');
     button.style('font-size', '16px');
     button.style('padding', '8px 16px');
@@ -43,21 +40,18 @@ function setup() {
     button.style('border', '1px solid #f6de05ff');
     button.style('font-family', 'monospace');
     centerButton();
+
     button.mousePressed(playSound);
   }
 }
 
 function draw() {
-  // Always check localStorage
-  alreadyVisited = localStorage.getItem('visited') === 'true';
-
-  if (alreadyVisited && !messageShown) {
-    // Show one-time message immediately on refresh
+  if (alreadyVisited) {
     background(245);
     fill(0);
     textSize(12);
     text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop(); // Stop the draw loop
+    noLoop();
     return;
   }
 
@@ -71,42 +65,42 @@ function draw() {
     return;
   }
 
-  if (!alreadyVisited) {
-    // Animation code
-    background(245);
-    translate(width / 2, height / 2);
+  background(245);
+  translate(width / 2, height / 2);
 
-    analyser.getByteTimeDomainData(dataArray);
+  analyser.getByteTimeDomainData(dataArray);
 
-    let sum = 0;
-    for (let i = 0; i < dataArray.length; i++) {
-      let val = dataArray[i] - 128;
-      sum += abs(val);
-    }
-    let average = sum / dataArray.length;
-    let amp = map(average, 0, 64, 5, 35);
-
-    let rings = 20;
-    let baseRadius = 40;
-
-    for (let i = 0; i < rings; i++) {
-      let hueOsc = map(sin(frameCount * 0.02 + i * 0.5), -1, 1, 0, 60);
-      let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
-      stroke((hueOsc + hueNoise) % 360, 90, 100);
-      strokeWeight(1.5);
-
-      let r = baseRadius + i * 8;
-      beginShape();
-      for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-        let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
-        let wave = map(noiseVal, 0, 1, -amp, amp);
-        let x = cos(a) * (r + wave);
-        let y = sin(a) * (r + wave);
-        vertex(x, y);
-      }
-      endShape(CLOSE);
-    }
+  let sum = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    let val = dataArray[i] - 128;
+    sum += abs(val);
   }
+  let average = sum / dataArray.length;
+
+  // baseAmp ensures subtle movement even when audio is quiet
+  let baseAmp = 5;
+  let amp = map(average, 0, 64, baseAmp, 25);
+
+  colorMode(HSB, 360, 100, 100);
+  let rings = 20;
+  let baseRadius = 40;
+
+  for (let i = 0; i < rings; i++) {
+    let r = baseRadius + i * 8;
+    beginShape();
+    for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
+      let noiseVal = noise(cos(a) + 1, sin(a) + 1, frameCount * 0.02 + i * 0.2);
+      let wave = map(noiseVal, 0, 1, -amp, amp);
+      let x = cos(a) * (r + wave);
+      let y = sin(a) * (r + wave);
+      vertex(x, y);
+    }
+    stroke((frameCount * 2 + i * 10) % 360, 80, 80); // color fades over time
+    strokeWeight(1.2);
+    endShape(CLOSE);
+  }
+
+  colorMode(RGB, 255);
 }
 
 function centerButton() {
@@ -117,7 +111,9 @@ function centerButton() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (!alreadyVisited) centerButton();
+  if (!alreadyVisited) {
+    centerButton();
+  }
 }
 
 function playSound() {
@@ -141,8 +137,9 @@ function playSound() {
       button.style('color', '#f6de05ff');
 
       messageShown = true;
-      localStorage.setItem('visited', 'true'); // Lock the experience
       showDownloadButton();
+
+      localStorage.setItem('visited', 'true');
     };
   }
 }
@@ -160,14 +157,7 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = `
-Hey Kevenino,
-
-Lately I've been thinking a lot about what it really means to live authentically...
-(Your letter text here)
-Martina
-`.trim();
-
+  let letterText = `...`; // your full letter text here
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
   let a = createA(url, 'letter.txt');
