@@ -1,4 +1,4 @@
-let audio;
+let audio; 
 let audioCtx;
 let analyser;
 let source;
@@ -18,10 +18,12 @@ function setup() {
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
 
+  colorMode(HSB, 360, 100, 100, 1); // HSB for fading colors
+
   if (!alreadyVisited) {
     // Setup audio
-    audio = new Audio('Monica.mp3');
-    audio.crossOrigin = "anonymous"; // if loading externally
+    audio = new Audio('Keven.mp3');
+    audio.crossOrigin = "anonymous";
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 512;
@@ -36,8 +38,8 @@ function setup() {
     button.style('font-size', '16px');
     button.style('padding', '8px 16px');
     button.style('background', 'transparent');
-    button.style('color', '#1f9a00ff');
-    button.style('border', '1px solid #fae504ff');
+    button.style('color', '#1b9b05ff');
+    button.style('border', '1px solid #1b9b05ff');
     button.style('font-family', 'monospace');
     centerButton();
 
@@ -76,18 +78,22 @@ function draw() {
     sum += abs(val);
   }
   let average = sum / dataArray.length;
-  let amp = map(average, 0, 64, 0, 20);
+  // Amplify a bit for more visible movement
+  let amp = map(average, 0, 64, 5, 35);
 
-  stroke('#1f9a00ff');
-  strokeWeight(1.2);
   let rings = 20;
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
+    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60); 
+    let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
+    stroke((hueOsc + hueNoise) % 360, 90, 100); 
+    strokeWeight(1.5);
+
     let r = baseRadius + i * 8;
     beginShape();
     for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-      let noiseVal = noise(cos(a) + 1, sin(a) + 1, frameCount * 0.01 + i * 0.2);
+      let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
       let wave = map(noiseVal, 0, 1, -amp, amp);
       let x = cos(a) * (r + wave);
       let y = sin(a) * (r + wave);
@@ -123,19 +129,16 @@ function playSound() {
     button.position(bottomX, bottomY);
 
     audio.onended = () => {
-      // Freeze frame
       freezeFrame = get();
 
-      // Show stop icon again
       button.html('■');
       button.removeAttribute('disabled');
       button.position(width / 2 - 20, height / 2 - 20);
-      button.style('color', '#fae504ff');
+      button.style('color', '#f6de05ff');
 
       messageShown = true;
       showDownloadButton();
 
-      // Mark this session as visited
       localStorage.setItem('visited', 'true');
     };
   }
@@ -155,6 +158,7 @@ function showDownloadButton() {
 
 function downloadLetter() {
   let letterText = `
+
 Dear Monica,
 
 This is a lived letter a way to thank you for being such a lovely pengyou. You're always so thoughtful, so sweet, and I feel lucky for the days we shared walking around, talking, discovering things together. It felt a little like traveling not only through a place, but also through ideas, through each other.
@@ -163,15 +167,11 @@ One of the things we spoke about was love, whether it is a choice or maybe a for
 And maybe it's a bit like traveling.
 
 When you set out on a trip, there's intention you book a train, pack your bag, choose a destination. But then, the real journey is often what you didn't plan: the detour, the stranger you meet, the street you turn onto by accident. In the same way, falling in love feels like being swept up into the unknown, a force you can't quite control, like going into a path you didn't expect.
-
 But staying in love i think that's more like the daily part of traveling. Choosing to keep going even when you're tired, even when the weather changes. Choosing to walk one more street, to sit down and listen, to notice the details.
-
 And maybe, just like traveling, love is also about getting to know yourself. You discover parts of yourself reflected in another person, but also in the silences, in the moments of being lost, in the small decisions along the way.
 
 Some people say that we don't love people for their traits, but for something unnamable like the atmosphere of a city you can't explain, but you feel. Others say love is not only a feeling, but an act a way of being with someone, the same way traveling isn't just moving but how you move through the world.
-
-Maybe love is both:
-A wild force that enters without knocking, and a quiet choice we make every day with another, and with ourselves.
+Maybe love is both: A wild force that enters without knocking, and a quiet choice we make every day with another, and with ourselves.
 It's like setting out on a journey without a map:
 you can choose to move forward, to explore, to stay open to what appears,
 and in the process, you discover not just the world around you,

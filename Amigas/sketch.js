@@ -18,6 +18,8 @@ function setup() {
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
 
+  colorMode(HSB, 360, 100, 100, 1);
+
   if (!alreadyVisited) {
     // Setup audio
     audio = new Audio('Amigas.mp3');
@@ -83,11 +85,18 @@ function draw() {
   let rings = 20;
   let baseRadius = 40;
 
+  let rings = 20;
+  let baseRadius = 40;
+
   for (let i = 0; i < rings; i++) {
+    let hue = (frameCount * 2 + i * 18) % 360; // fading hue
+    stroke(hue, 80, 100); 
+    strokeWeight(1.2);
+
     let r = baseRadius + i * 8;
     beginShape();
     for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-      let noiseVal = noise(cos(a) + 1, sin(a) + 1, frameCount * 0.01 + i * 0.2);
+      let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
       let wave = map(noiseVal, 0, 1, -amp, amp);
       let x = cos(a) * (r + wave);
       let y = sin(a) * (r + wave);
