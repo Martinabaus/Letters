@@ -123,8 +123,7 @@ function playSound() {
     audio.play();
     hasPlayed = true;
 
-    localStorage.setItem('visited', 'true');
-    alreadyVisited = true;
+   // alreadyVisited = true;
 
     button.html('playing...');
     button.attribute('disabled', '');
@@ -141,6 +140,7 @@ function playSound() {
       button.style('color', '#f6de05ff');
 
       messageShown = true;
+      localStorage.setItem('visited', 'true');
       showDownloadButton();
 
     };
