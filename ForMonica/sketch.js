@@ -48,6 +48,9 @@ function setup() {
 }
 
 function draw() {
+ 
+ alreadyVisited = localStorage.getItem('visited') === 'true';
+  
   if (alreadyVisited) {
     background(245);
     fill(0);

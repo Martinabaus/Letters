@@ -48,6 +48,9 @@ function setup() {
 }
 
 function draw() {
+
+ alreadyVisited = localStorage.getItem('visited') === 'true'; 
+
   if (alreadyVisited) {
     background(245);
     fill(0);
@@ -85,9 +88,10 @@ function draw() {
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
-    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 38); 
+    let hueOsc = map(sin(frameCount * 0.02 + i * 0.5), -1, 1, 38, 120); 
     let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
-    stroke((hueOsc + hueNoise) % 360, 90, 100); 
+    let hue = constrain(hueOsc + hueNoise, 38, 120); // never goes outside brown ↔ green
+    stroke(hue, 90, 100);
     strokeWeight(1.5);
 
     let r = baseRadius + i * 8;
