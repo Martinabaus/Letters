@@ -37,7 +37,7 @@ function setup() {
     button.style('padding', '8px 16px');
     button.style('background', 'transparent');
     button.style('color', '#cc0000');
-    button.style('border', '1px solid #cc0000');
+    button.style('border', '1px solid #f6de05ff');
     button.style('font-family', 'monospace');
     centerButton();
 
@@ -130,7 +130,7 @@ function playSound() {
       button.html('■');
       button.removeAttribute('disabled');
       button.position(width / 2 - 20, height / 2 - 20);
-      button.style('color', '#cc0000');
+      button.style('color', '#f6de05ff');
 
       messageShown = true;
       showDownloadButton();

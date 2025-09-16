@@ -36,8 +36,8 @@ function setup() {
     button.style('font-size', '16px');
     button.style('padding', '8px 16px');
     button.style('background', 'transparent');
-    button.style('color', '#cc0000');
-    button.style('border', '1px solid #cc0000');
+    button.style('color', '#a56703ff');
+    button.style('border', '1px solid #139a04ff');
     button.style('font-family', 'monospace');
     centerButton();
 
@@ -78,7 +78,7 @@ function draw() {
   let average = sum / dataArray.length;
   let amp = map(average, 0, 64, 0, 20);
 
-  stroke('#cc0000');
+  stroke('#139a04ff');
   strokeWeight(1.2);
   let rings = 20;
   let baseRadius = 40;
@@ -130,7 +130,7 @@ function playSound() {
       button.html('■');
       button.removeAttribute('disabled');
       button.position(width / 2 - 20, height / 2 - 20);
-      button.style('color', '#cc0000');
+      button.style('color', '#a56703ff');
 
       messageShown = true;
       showDownloadButton();
