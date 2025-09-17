@@ -245,8 +245,13 @@ function setup() {
 }
 
 function draw() {
-  if (alreadyVisited) {
-    background(245);
+  background(245);
+
+  const alreadyVisited = localStorage.getItem('visited') === 'true';
+  const audioStarted = localStorage.getItem('audioStarted') === 'true';
+
+  // 1️⃣ One-time experience message
+  if (alreadyVisited || audioStarted) {
     fill(0);
     textSize(12);
     text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
@@ -254,9 +259,9 @@ function draw() {
     return;
   }
 
+  // 2️⃣ Freeze frame + thank you message
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
-
     noStroke();
     fill(0);
     textSize(10);
@@ -264,37 +269,33 @@ function draw() {
     return;
   }
 
-  background(245);
-  translate(width / 2, height / 2);
+  // 3️⃣ Ring animation while playing
+  if (hasPlayed && analyser) {
+    translate(width / 2, height / 2);
 
-  analyser.getByteTimeDomainData(dataArray);
+    analyser.getByteTimeDomainData(dataArray);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) sum += abs(dataArray[i] - 128);
+    let amp = map(sum / dataArray.length, 0, 64, 0, 20);
 
-  let sum = 0;
-  for (let i = 0; i < dataArray.length; i++) {
-    let val = dataArray[i] - 128;
-    sum += abs(val);
-  }
-  let average = sum / dataArray.length;
-  let amp = map(average, 0, 64, 0, 20);
+    let rings = 20;
+    let baseRadius = 40;
 
-  stroke('#cc0000');
-  strokeWeight(1.2);
-  let rings = 20;
-  let baseRadius = 40;
-
-  for (let i = 0; i < rings; i++) {
-    let r = baseRadius + i * 8;
-    beginShape();
-    for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-      let noiseVal = noise(cos(a) + 1, sin(a) + 1, frameCount * 0.01 + i * 0.2);
-      let wave = map(noiseVal, 0, 1, -amp, amp);
-      let x = cos(a) * (r + wave);
-      let y = sin(a) * (r + wave);
-      vertex(x, y);
+    for (let i = 0; i < rings; i++) {
+      let r = baseRadius + i * 8;
+      beginShape();
+      for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
+        let noiseVal = noise(cos(a) + 1, sin(a) + 1, frameCount * 0.01 + i * 0.2);
+        let wave = map(noiseVal, 0, 1, -amp, amp);
+        let x = cos(a) * (r + wave);
+        let y = sin(a) * (r + wave);
+        vertex(x, y);
+      }
+      endShape(CLOSE);
     }
-    endShape(CLOSE);
   }
 }
+
 
 function centerButton() {
   const btnWidth = 80;
