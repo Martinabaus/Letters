@@ -217,7 +217,7 @@ function setup() {
   const alreadyVisited = localStorage.getItem('visited') === 'true';
   const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
-  // If blocked already → show message and stop
+  // If revisiting or refreshed mid-play → block
   if (alreadyVisited || audioStarted) {
     background(245);
     fill(0);
@@ -240,7 +240,7 @@ function setup() {
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
-  // Create play button
+  // Play button
   button = createButton('▸');
   button.style('font-size', '16px');
   button.style('padding', '8px 16px');
@@ -253,20 +253,6 @@ function setup() {
 }
 
 function draw() {
-  const alreadyVisited = localStorage.getItem('visited') === 'true';
-  const audioStarted = localStorage.getItem('audioStarted') === 'true';
-
-  // 🔒 If refreshed during playback OR already finished → block
-  if (alreadyVisited || audioStarted) {
-    background(245);
-    fill(0);
-    textSize(12);
-    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop();
-    return;
-  }
-
-  // 🎵 After playback finished → thank you message
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
     noStroke();
@@ -276,50 +262,44 @@ function draw() {
     return;
   }
 
-  // 🌈 Otherwise → run animation
+  if (!analyser) return; // safety check
+
   background(245);
   translate(width / 2, height / 2);
 
-  if (analyser) {
-    analyser.getByteTimeDomainData(dataArray);
+  analyser.getByteTimeDomainData(dataArray);
+  let sum = 0;
+  for (let i = 0; i < dataArray.length; i++) {
+    let val = dataArray[i] - 128;
+    sum += abs(val);
+  }
+  let average = sum / dataArray.length;
+  let amp = map(average, 0, 64, 5, 35);
 
-    let sum = 0;
-    for (let i = 0; i < dataArray.length; i++) {
-      let val = dataArray[i] - 128;
-      sum += abs(val);
+  let rings = 20;
+  let baseRadius = 40;
+
+  for (let i = 0; i < rings; i++) {
+    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60);
+    let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
+    stroke((hueOsc + hueNoise) % 360, 90, 100);
+    strokeWeight(1.5);
+
+    let r = baseRadius + i * 8;
+    beginShape();
+    for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
+      let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
+      let wave = map(noiseVal, 0, 1, -amp, amp);
+      let x = cos(a) * (r + wave);
+      let y = sin(a) * (r + wave);
+      vertex(x, y);
     }
-    let average = sum / dataArray.length;
-    let amp = map(average, 0, 64, 5, 35);
-
-    let rings = 20;
-    let baseRadius = 40;
-
-    for (let i = 0; i < rings; i++) {
-      let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60);
-      let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
-      stroke((hueOsc + hueNoise) % 360, 90, 100);
-      strokeWeight(1.5);
-
-      let r = baseRadius + i * 8;
-      beginShape();
-      for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-        let noiseVal = noise(
-          cos(a) * 1.2 + 1,
-          sin(a) * 1.2 + 1,
-          frameCount * 0.015 + i * 0.25
-        );
-        let wave = map(noiseVal, 0, 1, -amp, amp);
-        let x = cos(a) * (r + wave);
-        let y = sin(a) * (r + wave);
-        vertex(x, y);
-      }
-      endShape(CLOSE);
-    }
+    endShape(CLOSE);
   }
 }
 
 function playSound() {
-  // Mark audio as started to block refresh
+  // Mark audio started so refresh mid-play is blocked
   localStorage.setItem('audioStarted', 'true');
 
   audioCtx.resume();
@@ -337,7 +317,8 @@ function playSound() {
     button.style('color', '#26de06ff');
 
     messageShown = true;
-    // Mark as fully visited
+
+    // Mark fully visited
     localStorage.setItem('visited', 'true');
     localStorage.removeItem('audioStarted');
     showDownloadButton();
@@ -357,32 +338,7 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = `Dear Monica,
-
-This is a lived letter a way to thank you for being such a lovely pengyou. You're always so thoughtful, so sweet, and I feel lucky for the days we shared walking around, talking, discovering things together. It felt a little like traveling not only through a place, but also through ideas, through each other.
-
-One of the things we spoke about was love, whether it is a choice or maybe a force.
-And maybe it's a bit like traveling.
-
-When you set out on a trip, there's intention you book a train, pack your bag, choose a destination. But then, the real journey is often what you didn't plan: the detour, the stranger you meet, the street you turn onto by accident. In the same way, falling in love feels like being swept up into the unknown, a force you can't quite control, like going into a path you didn't expect.
-But staying in love i think that's more like the daily part of traveling. Choosing to keep going even when you're tired, even when the weather changes. Choosing to walk one more street, to sit down and listen, to notice the details.
-And maybe, just like traveling, love is also about getting to know yourself. You discover parts of yourself reflected in another person, but also in the silences, in the moments of being lost, in the small decisions along the way.
-
-Some people say that we don't love people for their traits, but for something unnamable like the atmosphere of a city you can't explain, but you feel. Others say love is not only a feeling, but an act a way of being with someone, the same way traveling isn't just moving but how you move through the world.
-Maybe love is both: A wild force that enters without knocking, and a quiet choice we make every day with another, and with ourselves.
-It's like setting out on a journey without a map:
-you can choose to move forward, to explore, to stay open to what appears,
-and in the process, you discover not just the world around you,
-but who you are when you're on the road.
-
-I'm glad we got to travel a little together, not just through streets and days, but through thoughts and moments.And somehow, in the middle of all of that moving, I notice a bit more of who I am. and I hope the journey is doing the same for you.
-
-Big hugs, keep traveling and loving!
-
-Con cariño,
-Martina ,
-  `;
-
+  let letterText = `Dear Monica,\n\n[...your letter content...]`;
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
   let a = createA(url, 'letter.txt');
@@ -394,6 +350,8 @@ Martina ,
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   if (!localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
-    button.position(width / 2 - 18, height / 2 - 20);
+    const btnWidth = 80;
+    const btnHeight = 40;
+    button.position((windowWidth - btnWidth) / 1.95, (windowHeight - btnHeight) / 2);
   }
 }
