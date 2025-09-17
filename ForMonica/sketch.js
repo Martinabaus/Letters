@@ -254,11 +254,19 @@ function setup() {
 }
 
 function draw() {
-  // Stop drawing if page is already locked
   const alreadyVisited = localStorage.getItem('visited') === 'true';
-  const audioStarted = localStorage.getItem('audioStarted') === 'true';
-  if (alreadyVisited || audioStarted) return;
 
+  // If experience is already over (after playback + reload)
+  if (alreadyVisited) {
+    background(245);
+    fill(0);
+    textSize(12);
+    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
+    noLoop();
+    return;
+  }
+
+  // If playback ended, freeze last frame and show message
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
     noStroke();
@@ -268,7 +276,7 @@ function draw() {
     return;
   }
 
-  // Animation
+  // Live animation with voice
   background(245);
   translate(width / 2, height / 2);
   analyser.getByteTimeDomainData(dataArray);
@@ -279,23 +287,26 @@ function draw() {
     sum += abs(val);
   }
   let average = sum / dataArray.length;
-  // Amplify a bit for more visible movement
   let amp = map(average, 0, 64, 5, 35);
 
   let rings = 20;
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
-    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60); 
+    let hueOsc = map(sin(frameCount * 0.02 + i * 0.5), -1, 1, 0, 60);
     let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
-    stroke((hueOsc + hueNoise) % 360, 90, 100); 
+    stroke((hueOsc + hueNoise) % 360, 90, 100);
     strokeWeight(1.5);
 
     let r = baseRadius + i * 8;
     beginShape();
     for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-      let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
-      let wave = map(noiseVal, 0, 1, -amp, amp);
+      let noiseVal = noise(
+        cos(a) * 1.2 + 1,
+        sin(a) * 1.2 + 1,
+        frameCount * 0.015 + i * 0.25
+      );
+      let wave = map(noiseVal, 0, 1, -1, 1) * amp;
       let x = cos(a) * (r + wave);
       let y = sin(a) * (r + wave);
       vertex(x, y);
