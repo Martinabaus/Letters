@@ -214,11 +214,12 @@ function setup() {
   rectMode(CENTER);
   colorMode(HSB, 360, 100, 100, 1);
 
+  // Check if page was visited or audio was started before
   const alreadyVisited = localStorage.getItem('visited') === 'true';
   const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
-  // If revisiting or refreshed mid-play → block
   if (alreadyVisited || audioStarted) {
+    // Block page immediately if revisited
     background(245);
     fill(0);
     textSize(12);
@@ -233,8 +234,7 @@ function setup() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = 512;
-  let bufferLength = analyser.frequencyBinCount;
-  dataArray = new Uint8Array(bufferLength);
+  dataArray = new Uint8Array(analyser.frequencyBinCount);
 
   source = audioCtx.createMediaElementSource(audio);
   source.connect(analyser);
@@ -249,10 +249,22 @@ function setup() {
   button.style('border', '1px solid #fefe02ff');
   button.style('font-family', 'monospace');
   button.position(width / 2 - 18, height / 2 - 20);
+
   button.mousePressed(playSound);
 }
 
 function draw() {
+  const alreadyVisited = localStorage.getItem('visited') === 'true';
+
+  if (alreadyVisited) {
+    background(245);
+    fill(0);
+    textSize(12);
+    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
+    noLoop();
+    return;
+  }
+
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
     noStroke();
@@ -262,44 +274,51 @@ function draw() {
     return;
   }
 
-  if (!analyser) return; // safety check
+  // Animation synced with audio
+  if (analyser) {
+    background(245);
+    translate(width / 2, height / 2);
 
-  background(245);
-  translate(width / 2, height / 2);
+    analyser.getByteTimeDomainData(dataArray);
 
-  analyser.getByteTimeDomainData(dataArray);
-  let sum = 0;
-  for (let i = 0; i < dataArray.length; i++) {
-    let val = dataArray[i] - 128;
-    sum += abs(val);
-  }
-  let average = sum / dataArray.length;
-  let amp = map(average, 0, 64, 5, 35);
-
-  let rings = 20;
-  let baseRadius = 40;
-
-  for (let i = 0; i < rings; i++) {
-    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60);
-    let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
-    stroke((hueOsc + hueNoise) % 360, 90, 100);
-    strokeWeight(1.5);
-
-    let r = baseRadius + i * 8;
-    beginShape();
-    for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-      let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
-      let wave = map(noiseVal, 0, 1, -amp, amp);
-      let x = cos(a) * (r + wave);
-      let y = sin(a) * (r + wave);
-      vertex(x, y);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+      let val = dataArray[i] - 128;
+      sum += abs(val);
     }
-    endShape(CLOSE);
+    let average = sum / dataArray.length;
+    let amp = map(average, 0, 64, 5, 35);
+
+    let rings = 20;
+    let baseRadius = 40;
+
+    for (let i = 0; i < rings; i++) {
+      let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60);
+      let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
+      stroke((hueOsc + hueNoise) % 360, 90, 100);
+      strokeWeight(1.5);
+
+      let r = baseRadius + i * 8;
+      beginShape();
+      for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
+        let noiseVal = noise(
+          cos(a) * 1.2 + 1,
+          sin(a) * 1.2 + 1,
+          frameCount * 0.015 + i * 0.25
+        );
+        let wave = map(noiseVal, 0, 1, -amp, amp);
+        let x = cos(a) * (r + wave);
+        let y = sin(a) * (r + wave);
+        vertex(x, y);
+      }
+      endShape(CLOSE);
+    }
   }
 }
 
 function playSound() {
-  // Mark audio started so refresh mid-play is blocked
+  // Mark audio as started immediately → blocks refresh/replay
+  localStorage.setItem('visited', 'true');
   localStorage.setItem('audioStarted', 'true');
 
   audioCtx.resume();
@@ -317,9 +336,6 @@ function playSound() {
     button.style('color', '#26de06ff');
 
     messageShown = true;
-
-    // Mark fully visited
-    localStorage.setItem('visited', 'true');
     localStorage.removeItem('audioStarted');
     showDownloadButton();
   };
@@ -338,7 +354,10 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = `Dear Monica,\n\n[...your letter content...]`;
+  let letterText = `Dear Monica,
+
+This is a lived letter ... [your full letter here]`;
+
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
   let a = createA(url, 'letter.txt');
@@ -350,8 +369,6 @@ function downloadLetter() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   if (!localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
-    const btnWidth = 80;
-    const btnHeight = 40;
-    button.position((windowWidth - btnWidth) / 1.95, (windowHeight - btnHeight) / 2);
+    button.position(width / 2 - 18, height / 2 - 20);
   }
 }
