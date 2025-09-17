@@ -206,8 +206,9 @@ let button;
 let messageShown = false;
 let freezeFrame;
 
-let alreadyVisited = false;
-let audioStarted = false;
+let alreadyVisited = localStorage.getItem('visited') === 'true';
+let audioStarted = localStorage.getItem('audioStarted') === 'true';
+let hasPlayed = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -217,11 +218,8 @@ function setup() {
   rectMode(CENTER);
   colorMode(HSB, 360, 100, 100, 1);
 
-  alreadyVisited = localStorage.getItem('visited') === 'true';
-  audioStarted = localStorage.getItem('audioStarted') === 'true';
-
-  // ONE-TIME EXPERIENCE BLOCK
-  if (alreadyVisited || audioStarted) {
+  // ONE-TIME MESSAGE (if revisiting or refresh mid-play)
+  if (alreadyVisited && !audioStarted) {
     background(245);
     fill(0);
     textSize(12);
@@ -230,7 +228,7 @@ function setup() {
     return;
   }
 
-  // SETUP AUDIO
+  // SETUP AUDIO (but do NOT autoplay)
   audio = new Audio('Monica.mp3');
   audio.crossOrigin = "anonymous";
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -244,7 +242,7 @@ function setup() {
   analyser.connect(audioCtx.destination);
 
   // PLAY BUTTON
-  button = createButton('▸');
+  button = createButton(audioStarted ? 'Resume' : '▸');
   button.style('font-size', '16px');
   button.style('padding', '8px 16px');
   button.style('background', 'transparent');
@@ -256,72 +254,83 @@ function setup() {
 }
 
 function draw() {
+  background(245);
+
+  // CASE: Freeze frame + thank you message
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
     noStroke();
     fill(0);
-    textSize(10);
+    textSize(12);
     text("This voice lived once.\nThank you for listening.", width / 2, height / 1.2);
     return;
   }
 
-  if (!analyser) return; // safety
+  // CASE: Rings animation (audio playing normally)
+  if (hasPlayed && !alreadyVisited) {
+    translate(width / 2, height / 2);
+    analyser.getByteTimeDomainData(dataArray);
 
-  // AUDIO-REACTIVE RINGS
-  background(245);
-  translate(width / 2, height / 2);
-  analyser.getByteTimeDomainData(dataArray);
-
-  let sum = 0;
-  for (let i = 0; i < dataArray.length; i++) {
-    let val = dataArray[i] - 128;
-    sum += abs(val);
-  }
-  let average = sum / dataArray.length;
-  let amp = map(average, 0, 64, 5, 35);
-
-  let rings = 20;
-  let baseRadius = 40;
-
-  for (let i = 0; i < rings; i++) {
-    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 38);
-    let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
-    stroke((hueOsc + hueNoise) % 360, 90, 100);
-    strokeWeight(1.5);
-
-    let r = baseRadius + i * 8;
-    beginShape();
-    for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-      let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
-      let wave = map(noiseVal, 0, 1, -amp, amp);
-      let x = cos(a) * (r + wave);
-      let y = sin(a) * (r + wave);
-      vertex(x, y);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+      let val = dataArray[i] - 128;
+      sum += abs(val);
     }
-    endShape(CLOSE);
+    let average = sum / dataArray.length;
+    let amp = map(average, 0, 64, 5, 35);
+
+    let rings = 20;
+    let baseRadius = 40;
+
+    for (let i = 0; i < rings; i++) {
+      let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 38);
+      let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
+      stroke((hueOsc + hueNoise) % 360, 90, 100);
+      strokeWeight(1.5);
+
+      let r = baseRadius + i * 8;
+      beginShape();
+      for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
+        let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
+        let wave = map(noiseVal, 0, 1, -amp, amp);
+        let x = cos(a) * (r + wave);
+        let y = sin(a) * (r + wave);
+        vertex(x, y);
+      }
+      endShape(CLOSE);
+    }
+  }
+
+  // CASE: First-time visit with no audio played yet → optional prompt text
+  if (!hasPlayed && !alreadyVisited) {
+    fill(0);
+    noStroke();
+    textSize(12);
+    text("Press ▸ to start the one-time experience.", width / 2, height / 2 + 40);
   }
 }
 
 function playSound() {
-  localStorage.setItem('audioStarted', 'true');
   audioCtx.resume();
   audio.play();
+  hasPlayed = true;
+  localStorage.setItem('audioStarted', 'true');
 
   button.html('playing...');
   button.attribute('disabled', '');
   button.position(width / 2 - 50, height * 0.9);
 
   audio.onended = () => {
-    freezeFrame = get(); // capture freeze frame
-    button.html('■');
-    button.removeAttribute('disabled');
-    button.position(width / 2 - 20, height / 2 - 20);
-    button.style('color', '#26de06ff');
-
+    freezeFrame = get();
     messageShown = true;
 
     localStorage.setItem('visited', 'true');
     localStorage.removeItem('audioStarted');
+
+    button.html('■');
+    button.removeAttribute('disabled');
+    button.position(width / 2 - 20, height / 2 - 20);
+
     showDownloadButton();
   };
 }
@@ -339,7 +348,7 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = `...`; // your letter text here
+  let letterText = `...`; // your letter here
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
   let a = createA(url, 'letter.txt');
@@ -350,12 +359,5 @@ function downloadLetter() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (button) {
-    if (!localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
-      const btnWidth = 80;
-      const btnHeight = 40;
-      button.position((windowWidth - btnWidth) / 1.95, (windowHeight - btnHeight) / 2);
-    }
-  }
+  if (button) button.position(width / 2 - 18, height / 2 - 20);
 }
-
