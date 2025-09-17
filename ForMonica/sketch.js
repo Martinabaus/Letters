@@ -214,10 +214,10 @@ function setup() {
   rectMode(CENTER);
   colorMode(HSB, 360, 100, 100, 1);
 
-  // Strict one-time check
   const alreadyVisited = localStorage.getItem('visited') === 'true';
   const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
+  // If they already refreshed during playback OR finished before → block
   if (alreadyVisited || audioStarted) {
     background(245);
     fill(0);
@@ -248,28 +248,13 @@ function setup() {
   button.style('color', '#26de06ff');
   button.style('border', '1px solid #fefe02ff');
   button.style('font-family', 'monospace');
-  button.position(width / 2 - 18, height / 2 - 20);
-
+  centerButton();
   button.mousePressed(playSound);
 }
 
-
 function draw() {
- 
- alreadyVisited = localStorage.getItem('visited') === 'true';
-
-  if (alreadyVisited) {
-    background(245);
-    fill(0);
-    textSize(12);
-    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop();
-    return;
-  }
-
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
-
     noStroke();
     fill(0);
     textSize(10);
@@ -280,41 +265,46 @@ function draw() {
   background(245);
   translate(width / 2, height / 2);
 
-  analyser.getByteTimeDomainData(dataArray);
+  if (analyser) {
+    analyser.getByteTimeDomainData(dataArray);
 
-  let sum = 0;
-  for (let i = 0; i < dataArray.length; i++) {
-    let val = dataArray[i] - 128;
-    sum += abs(val);
-  }
-  let average = sum / dataArray.length;
-  // Amplify a bit for more visible movement
-  let amp = map(average, 0, 64, 5, 35);
-
-  let rings = 20;
-  let baseRadius = 40;
-
-  for (let i = 0; i < rings; i++) {
-    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60); 
-    let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
-    stroke((hueOsc + hueNoise) % 360, 90, 100); 
-    strokeWeight(1.5);
-
-    let r = baseRadius + i * 8;
-    beginShape();
-    for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-      let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
-      let wave = map(noiseVal, 0, 1, -amp, amp);
-      let x = cos(a) * (r + wave);
-      let y = sin(a) * (r + wave);
-      vertex(x, y);
+    let sum = 0;
+    for (let i = 0; i < dataArray.length; i++) {
+      let val = dataArray[i] - 128;
+      sum += abs(val);
     }
-    endShape(CLOSE);
+    let average = sum / dataArray.length;
+    let amp = map(average, 0, 64, 5, 35);
+
+    let rings = 20;
+    let baseRadius = 40;
+
+    for (let i = 0; i < rings; i++) {
+      let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60);
+      let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
+      stroke((hueOsc + hueNoise) % 360, 90, 100);
+      strokeWeight(1.5);
+
+      let r = baseRadius + i * 8;
+      beginShape();
+      for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
+        let noiseVal = noise(
+          cos(a) * 1.2 + 1,
+          sin(a) * 1.2 + 1,
+          frameCount * 0.015 + i * 0.25
+        );
+        let wave = map(noiseVal, 0, 1, -amp, amp);
+        let x = cos(a) * (r + wave);
+        let y = sin(a) * (r + wave);
+        vertex(x, y);
+      }
+      endShape(CLOSE);
+    }
   }
 }
 
 function playSound() {
-  // Mark audio as started to block refresh
+  // Mark as started (so refresh during playback blocks)
   localStorage.setItem('audioStarted', 'true');
 
   audioCtx.resume();
@@ -326,15 +316,13 @@ function playSound() {
 
   audio.onended = () => {
     freezeFrame = get();
-    button.html('■');
-    button.removeAttribute('disabled');
-    button.position(width / 2 - 20, height / 2 - 20);
-    button.style('color', '#26de06ff');
+    button.remove();
 
     messageShown = true;
-    // Mark as fully visited
+    // Mark as permanently visited
     localStorage.setItem('visited', 'true');
-    localStorage.removeItem('audioStarted');
+    localStorage.removeItem('audioStarted'); // clear temporary state
+
     showDownloadButton();
   };
 }
@@ -375,7 +363,8 @@ I'm glad we got to travel a little together, not just through streets and days, 
 Big hugs, keep traveling and loving!
 
 Con cariño,
-Martina`; // keep your original text
+Martina `;
+
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
   let a = createA(url, 'letter.txt');
@@ -392,7 +381,7 @@ function centerButton() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (!localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
+  if (button && !localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
     centerButton();
   }
 }
