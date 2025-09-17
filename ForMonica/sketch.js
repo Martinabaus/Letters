@@ -214,17 +214,11 @@ function setup() {
   rectMode(CENTER);
   colorMode(HSB, 360, 100, 100, 1);
 
-  // Check if page was visited or audio was started before
   const alreadyVisited = localStorage.getItem('visited') === 'true';
   const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
-  if (alreadyVisited || audioStarted) {
-    // Block page immediately if revisited
-    background(245);
-    fill(0);
-    textSize(12);
-    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop();
+  if (alreadyVisited) {
+    showOneTimeMessage();
     return;
   }
 
@@ -234,7 +228,8 @@ function setup() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = 512;
-  dataArray = new Uint8Array(analyser.frequencyBinCount);
+  let bufferLength = analyser.frequencyBinCount;
+  dataArray = new Uint8Array(bufferLength);
 
   source = audioCtx.createMediaElementSource(audio);
   source.connect(analyser);
@@ -255,27 +250,19 @@ function setup() {
 
 function draw() {
   const alreadyVisited = localStorage.getItem('visited') === 'true';
+  const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
+  // If they revisited or refreshed mid-play → show one-time message
   if (alreadyVisited) {
-    background(245);
-    fill(0);
-    textSize(12);
-    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop();
+    showOneTimeMessage();
     return;
   }
 
-  if (messageShown) {
-    if (freezeFrame) image(freezeFrame, 0, 0);
-    noStroke();
-    fill(0);
-    textSize(10);
-    text("This voice lived once.\nThank you for listening.", width / 2, height / 1.2);
-    return;
-  }
+  // If audio hasn't started yet → do nothing (just show button)
+  if (!audioStarted && !messageShown) return;
 
-  // Animation synced with audio
-  if (analyser) {
+  // Show animation while audio is playing
+  if (audioStarted && analyser) {
     background(245);
     translate(width / 2, height / 2);
 
@@ -314,12 +301,19 @@ function draw() {
       endShape(CLOSE);
     }
   }
+
+  // Show final freeze frame message
+  if (messageShown) {
+    if (freezeFrame) image(freezeFrame, 0, 0);
+    noStroke();
+    fill(0);
+    textSize(10);
+    text("This voice lived once.\nThank you for listening.", width / 2, height / 1.2);
+  }
 }
 
 function playSound() {
-  // Mark audio as started immediately → blocks refresh/replay
-  localStorage.setItem('visited', 'true');
-  localStorage.setItem('audioStarted', 'true');
+  localStorage.setItem('audioStarted', 'true'); // mark audio started
 
   audioCtx.resume();
   audio.play();
@@ -330,15 +324,27 @@ function playSound() {
 
   audio.onended = () => {
     freezeFrame = get();
+    messageShown = true;
+
+    // mark as fully visited
+    localStorage.setItem('visited', 'true');
+    localStorage.removeItem('audioStarted');
+
     button.html('■');
     button.removeAttribute('disabled');
     button.position(width / 2 - 20, height / 2 - 20);
     button.style('color', '#26de06ff');
 
-    messageShown = true;
-    localStorage.removeItem('audioStarted');
     showDownloadButton();
   };
+}
+
+function showOneTimeMessage() {
+  background(245);
+  fill(0);
+  textSize(12);
+  text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
+  noLoop();
 }
 
 function showDownloadButton() {
@@ -354,10 +360,7 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = `Dear Monica,
-
-This is a lived letter ... [your full letter here]`;
-
+  let letterText = `Dear Monica, ...`; // keep your letter text here
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
   let a = createA(url, 'letter.txt');
