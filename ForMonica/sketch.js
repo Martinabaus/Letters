@@ -197,7 +197,7 @@ Martina
   a.elt.click();
 }*/
 
-let audio; 
+let audio;
 let audioCtx;
 let analyser;
 let source;
@@ -214,10 +214,11 @@ function setup() {
   rectMode(CENTER);
   colorMode(HSB, 360, 100, 100, 1);
 
+  // Strict one-time check
   const alreadyVisited = localStorage.getItem('visited') === 'true';
+  const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
-  if (alreadyVisited) {
-    // Immediately show the one-time message and stop everything
+  if (alreadyVisited || audioStarted) {
     background(245);
     fill(0);
     textSize(12);
@@ -239,7 +240,7 @@ function setup() {
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
-  // Create play button
+  // Play button
   button = createButton('▸');
   button.style('font-size', '16px');
   button.style('padding', '8px 16px');
@@ -253,8 +254,10 @@ function setup() {
 }
 
 function draw() {
+  // Stop drawing if page is already locked
   const alreadyVisited = localStorage.getItem('visited') === 'true';
-  if (alreadyVisited) return; // stop draw if page already visited
+  const audioStarted = localStorage.getItem('audioStarted') === 'true';
+  if (alreadyVisited || audioStarted) return;
 
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
@@ -265,6 +268,7 @@ function draw() {
     return;
   }
 
+  // Animation
   background(245);
   translate(width / 2, height / 2);
   analyser.getByteTimeDomainData(dataArray);
@@ -281,9 +285,9 @@ function draw() {
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
-    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60); 
+    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 60);
     let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
-    stroke((hueOsc + hueNoise) % 360, 90, 100); 
+    stroke((hueOsc + hueNoise) % 360, 90, 100);
     strokeWeight(1.5);
 
     let r = baseRadius + i * 8;
@@ -300,6 +304,9 @@ function draw() {
 }
 
 function playSound() {
+  // Mark audio as started to block refresh
+  localStorage.setItem('audioStarted', 'true');
+
   audioCtx.resume();
   audio.play();
 
@@ -315,7 +322,9 @@ function playSound() {
     button.style('color', '#26de06ff');
 
     messageShown = true;
+    // Mark as fully visited
     localStorage.setItem('visited', 'true');
+    localStorage.removeItem('audioStarted');
     showDownloadButton();
   };
 }
@@ -350,7 +359,7 @@ function centerButton() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (!localStorage.getItem('visited')) {
+  if (!localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
     centerButton();
   }
 }
