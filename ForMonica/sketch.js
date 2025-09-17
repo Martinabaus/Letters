@@ -243,12 +243,12 @@ function setup() {
   // Play button
   button = createButton('▸');
   button.style('font-size', '16px');
-  button.style('padding', '15px 16px');
+  button.style('padding', '8px 16px');
   button.style('background', 'transparent');
   button.style('color', '#26de06ff');
   button.style('border', '1px solid #fefe02ff');
   button.style('font-family', 'monospace');
-  centerButton();
+  button.position(width / 2 - 20, height / 2 - 20);
 
   button.mousePressed(playSound);
 }
