@@ -217,14 +217,6 @@ function setup() {
   const alreadyVisited = localStorage.getItem('visited') === 'true';
   const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
-  // If they already refreshed during playback OR finished before → block
-  if (alreadyVisited || audioStarted) {
-    background(245);
-    fill(0);
-    textSize(12);
-    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop();
-    return;
   }
 
   // Setup audio
@@ -250,9 +242,21 @@ function setup() {
   button.style('font-family', 'monospace');
   centerButton();
   button.mousePressed(playSound);
-}
 
 function draw() {
+  const alreadyVisited = localStorage.getItem('visited') === 'true';
+  const audioStarted = localStorage.getItem('audioStarted') === 'true';
+
+  // 🔒 If they refreshed during playback OR already finished → block
+  if (alreadyVisited || audioStarted) {
+    background(245);
+    fill(0);
+    textSize(12);
+    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
+    return; // stop drawing rings
+  }
+
+  // 🎵 After playback ended → thank you message
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
     noStroke();
@@ -262,6 +266,7 @@ function draw() {
     return;
   }
 
+  // 🌈 Otherwise → run animation
   background(245);
   translate(width / 2, height / 2);
 
