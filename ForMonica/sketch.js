@@ -217,6 +217,14 @@ function setup() {
   const alreadyVisited = localStorage.getItem('visited') === 'true';
   const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
+  // If blocked already → show message and stop
+  if (alreadyVisited || audioStarted) {
+    background(245);
+    fill(0);
+    textSize(12);
+    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
+    noLoop();
+    return;
   }
 
   // Setup audio
@@ -232,7 +240,7 @@ function setup() {
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
-  // Play button
+  // Create play button
   button = createButton('▸');
   button.style('font-size', '16px');
   button.style('padding', '8px 16px');
@@ -240,23 +248,25 @@ function setup() {
   button.style('color', '#26de06ff');
   button.style('border', '1px solid #fefe02ff');
   button.style('font-family', 'monospace');
-  centerButton();
+  button.position(width / 2 - 18, height / 2 - 20);
   button.mousePressed(playSound);
+}
 
 function draw() {
   const alreadyVisited = localStorage.getItem('visited') === 'true';
   const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
-  // 🔒 If they refreshed during playback OR already finished → block
+  // 🔒 If refreshed during playback OR already finished → block
   if (alreadyVisited || audioStarted) {
     background(245);
     fill(0);
     textSize(12);
     text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    return; // stop drawing rings
+    noLoop();
+    return;
   }
 
-  // 🎵 After playback ended → thank you message
+  // 🎵 After playback finished → thank you message
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
     noStroke();
@@ -309,7 +319,7 @@ function draw() {
 }
 
 function playSound() {
-  // Mark as started (so refresh during playback blocks)
+  // Mark audio as started to block refresh
   localStorage.setItem('audioStarted', 'true');
 
   audioCtx.resume();
@@ -321,13 +331,15 @@ function playSound() {
 
   audio.onended = () => {
     freezeFrame = get();
-    button.remove();
+    button.html('■');
+    button.removeAttribute('disabled');
+    button.position(width / 2 - 20, height / 2 - 20);
+    button.style('color', '#26de06ff');
 
     messageShown = true;
-    // Mark as permanently visited
+    // Mark as fully visited
     localStorage.setItem('visited', 'true');
-    localStorage.removeItem('audioStarted'); // clear temporary state
-
+    localStorage.removeItem('audioStarted');
     showDownloadButton();
   };
 }
@@ -368,7 +380,8 @@ I'm glad we got to travel a little together, not just through streets and days, 
 Big hugs, keep traveling and loving!
 
 Con cariño,
-Martina `;
+Martina ,
+  `;
 
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
@@ -378,15 +391,9 @@ Martina `;
   a.elt.click();
 }
 
-function centerButton() {
-  const btnWidth = 80;
-  const btnHeight = 40;
-  button.position((windowWidth - btnWidth) / 1.95, (windowHeight - btnHeight) / 2);
-}
-
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (button && !localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
-    centerButton();
+  if (!localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
+    button.position(width / 2 - 18, height / 2 - 20);
   }
 }
