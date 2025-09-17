@@ -217,10 +217,10 @@ function setup() {
   rectMode(CENTER);
   colorMode(HSB, 360, 100, 100, 1);
 
-  // Check if the user has already visited
   alreadyVisited = localStorage.getItem('visited') === 'true';
 
   if (alreadyVisited) {
+    // Show one-time message immediately
     background(245);
     fill(0);
     textSize(12);
@@ -242,7 +242,6 @@ function setup() {
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
-  // Create play button
   button = createButton('▸');
   button.style('font-size', '16px');
   button.style('padding', '8px 16px');
@@ -256,16 +255,7 @@ function setup() {
 }
 
 function draw() {
-  alreadyVisited = localStorage.getItem('visited') === 'true';
-
-  if (alreadyVisited) {
-    background(245);
-    fill(0);
-    textSize(12);
-    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop();
-    return;
-  }
+  if (alreadyVisited) return; // Already handled in setup
 
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
@@ -320,7 +310,7 @@ function centerButton() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (!alreadyVisited) centerButton();
+  if (!alreadyVisited && button) centerButton();
 }
 
 function playSound() {
@@ -328,6 +318,9 @@ function playSound() {
     audioCtx.resume();
     audio.play();
     hasPlayed = true;
+
+    // Mark as visited immediately
+    localStorage.setItem('visited', 'true');
 
     button.html('playing...');
     button.attribute('disabled', '');
@@ -344,9 +337,6 @@ function playSound() {
 
       messageShown = true;
       showDownloadButton();
-
-      // Mark as visited in localStorage
-      localStorage.setItem('visited', 'true');
     };
   }
 }
@@ -366,9 +356,10 @@ function showDownloadButton() {
 function downloadLetter() {
   let letterText = `
 Dear Monica,
+
 This is a lived letter a way to thank you for being such a lovely pengyou...
-[Letter content continues as before]
-  `.trim();
+[rest of your letter here]
+`.trim();
 
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
@@ -377,7 +368,3 @@ This is a lived letter a way to thank you for being such a lovely pengyou...
   a.hide();
   a.elt.click();
 }
-
-
-  
-
