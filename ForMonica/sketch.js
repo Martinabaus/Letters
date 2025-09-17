@@ -202,64 +202,52 @@ let audioCtx;
 let analyser;
 let source;
 let dataArray;
-let hasPlayed = false;
 let button;
 let messageShown = false;
-let freezeFrame;
-let alreadyVisited = false;
+let freezeFrame = null;
+let hasPlayed = false;
 
 function setup() {
-  alreadyVisited = localStorage.getItem('visited') === 'true';
-
   createCanvas(windowWidth, windowHeight);
   noFill();
   angleMode(RADIANS);
   textAlign(CENTER, CENTER);
   rectMode(CENTER);
-
-  if (!alreadyVisited) {
-    // Setup audio
-    audio = new Audio('Monica.mp3');
-    audio.crossOrigin = "anonymous"; // if loading externally
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 512;
-    let bufferLength = analyser.frequencyBinCount;
-    dataArray = new Uint8Array(bufferLength);
-
-    source = audioCtx.createMediaElementSource(audio);
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-
-    button = createButton('▸');
-    button.style('font-size', '16px');
-    button.style('padding', '8px 16px');
-    button.style('background', 'transparent');
-    button.style('color', '#cc0000');
-    button.style('border', '1px solid #cc0000');
-    button.style('font-family', 'monospace');
-    centerButton();
-
-    button.mousePressed(playSound);
-  }
-}
-
-function draw() {
-  background(245);
+  colorMode(HSB, 360, 100, 100, 1);
 
   const alreadyVisited = localStorage.getItem('visited') === 'true';
   const audioStarted = localStorage.getItem('audioStarted') === 'true';
 
-  // 1️⃣ One-time experience message
+  // Show one-time experience if revisiting or mid-play
   if (alreadyVisited || audioStarted) {
-    fill(0);
-    textSize(12);
-    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop();
+    showOneTimeMessage();
     return;
   }
 
-  // 2️⃣ Freeze frame + thank you message
+  // Setup audio
+  audio = new Audio('letter.mp3'); // replace with your file
+  audio.crossOrigin = "anonymous";
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512;
+  dataArray = new Uint8Array(analyser.frequencyBinCount);
+  source = audioCtx.createMediaElementSource(audio);
+  source.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  // Create play button
+  button = createButton('▸');
+  styleButton(button, '#cc0000');
+  centerButton();
+  button.mousePressed(playSound);
+}
+
+function draw() {
+  if (!audio || (!hasPlayed && !messageShown)) {
+    background(245);
+  }
+
+  // After audio ended → freeze frame + thank you
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
     noStroke();
@@ -269,8 +257,9 @@ function draw() {
     return;
   }
 
-  // 3️⃣ Ring animation while playing
-  if (hasPlayed && analyser) {
+  // Animate rings only while audio is playing
+  if (hasPlayed && audio && !audio.paused && analyser) {
+    background(245);
     translate(width / 2, height / 2);
 
     analyser.getByteTimeDomainData(dataArray);
@@ -280,7 +269,6 @@ function draw() {
 
     let rings = 20;
     let baseRadius = 40;
-
     for (let i = 0; i < rings; i++) {
       let r = baseRadius + i * 8;
       beginShape();
@@ -296,6 +284,65 @@ function draw() {
   }
 }
 
+function playSound() {
+  if (hasPlayed) return;
+
+  audioCtx.resume();
+  audio.play();
+  hasPlayed = true;
+
+  // Mark audio as started in localStorage
+  localStorage.setItem('audioStarted', 'true');
+
+  button.html('playing...');
+  button.attribute('disabled', '');
+  button.position(width / 2 - 50, height * 0.9);
+
+  audio.onended = () => {
+    // Freeze frame for visual
+    freezeFrame = get();
+
+    // Show stop icon again
+    button.html('■');
+    button.removeAttribute('disabled');
+    button.position(width / 2 - 20, height / 2 - 20);
+    styleButton(button, '#cc0000');
+
+    // Show thank you message
+    messageShown = true;
+
+    // Mark session as fully visited
+    localStorage.setItem('visited', 'true');
+    localStorage.removeItem('audioStarted');
+
+    showDownloadButton();
+  };
+}
+
+function showDownloadButton() {
+  let dl = createButton('⬇ download letter');
+  styleButton(dl, '#333');
+  dl.position(width / 2 - 70, height / 1.1);
+  dl.mousePressed(downloadLetter);
+}
+
+function downloadLetter() {
+  let letterText = `Dear friend, This letter was once spoken, carried by breath and time. Now it lingers in your hands — not just heard, but held. With warmth, M.`;
+  let blob = new Blob([letterText], { type: 'text/plain' });
+  let url = URL.createObjectURL(blob);
+  let a = createA(url, 'letter.txt');
+  a.attribute('download', 'letter.txt');
+  a.hide();
+  a.elt.click();
+}
+
+function showOneTimeMessage() {
+  background(245);
+  fill(0);
+  textSize(12);
+  text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
+  noLoop();
+}
 
 function centerButton() {
   const btnWidth = 80;
@@ -305,66 +352,17 @@ function centerButton() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-  if (!alreadyVisited) {
+  if (button && !localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
     centerButton();
   }
 }
 
-function playSound() {
-  if (!hasPlayed) {
-    audioCtx.resume();
-    audio.play();
-    hasPlayed = true;
-
-    button.html('playing...');
-    button.attribute('disabled', '');
-    const bottomX = width / 2 - 50;
-    const bottomY = height * 0.9;
-    button.position(bottomX, bottomY);
-
-    audio.onended = () => {
-      // Freeze frame
-      freezeFrame = get();
-
-      // Show stop icon again
-      button.html('■');
-      button.removeAttribute('disabled');
-      button.position(width / 2 - 20, height / 2 - 20);
-      button.style('color', '#cc0000');
-
-      messageShown = true;
-      showDownloadButton();
-
-      // Mark this session as visited
-      localStorage.setItem('visited', 'true');
-    };
-  }
+function styleButton(btn, color) {
+  btn.style('font-size', '16px');
+  btn.style('padding', '8px 16px');
+  btn.style('background', 'transparent');
+  btn.style('color', color);
+  btn.style('border', `1px solid ${color}`);
+  btn.style('font-family', 'monospace');
 }
 
-function showDownloadButton() {
-  let dl = createButton('⬇ download letter');
-  dl.style('font-size', '14px');
-  dl.style('padding', '6px 12px');
-  dl.style('background', 'transparent');
-  dl.style('color', '#333');
-  dl.style('border', '1px solid #333');
-  dl.style('font-family', 'monospace');
-  dl.position(width / 2 - 70, height / 1.1);
-  dl.mousePressed(downloadLetter);
-}
-
-function downloadLetter() {
-  let letterText =
-'Dear friend, This letter was once spoken,carried by breath and time.Now it lingers in your hands — not just heard, but held.With warmth,M.'
-
-
-
- .trim();
-
-  let blob = new Blob([letterText], { type: 'text/plain' });
-  let url = URL.createObjectURL(blob);
-  let a = createA(url, 'letter.txt');
-  a.attribute('download', 'letter.txt');
-  a.hide();
-  a.elt.click();
-}
