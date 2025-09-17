@@ -206,7 +206,7 @@ let button;
 let messageShown = false;
 let freezeFrame;
 
-let alreadyVisited = localStorage.getItem('visited') === 'true';
+let visited = localStorage.getItem('visited') === 'true';
 let audioStarted = localStorage.getItem('audioStarted') === 'true';
 let hasPlayed = false;
 
@@ -218,30 +218,18 @@ function setup() {
   rectMode(CENTER);
   colorMode(HSB, 360, 100, 100, 1);
 
-  // ONE-TIME MESSAGE (if revisiting or refresh mid-play)
-  if (alreadyVisited && !audioStarted) {
-    background(245);
-    fill(0);
-    textSize(12);
-    text("This was a one-time experience.\nNo turning back.", width / 2, height / 2);
-    noLoop();
-    return;
-  }
-
-  // SETUP AUDIO (but do NOT autoplay)
+  // Setup audio always
   audio = new Audio('Monica.mp3');
   audio.crossOrigin = "anonymous";
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = 512;
-  let bufferLength = analyser.frequencyBinCount;
-  dataArray = new Uint8Array(bufferLength);
-
+  dataArray = new Uint8Array(analyser.frequencyBinCount);
   source = audioCtx.createMediaElementSource(audio);
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
-  // PLAY BUTTON
+  // Setup play/resume button
   button = createButton(audioStarted ? 'Resume' : '▸');
   button.style('font-size', '16px');
   button.style('padding', '8px 16px');
@@ -251,12 +239,23 @@ function setup() {
   button.style('font-family', 'monospace');
   button.position(width / 2 - 18, height / 2 - 20);
   button.mousePressed(playSound);
+
+  // Freeze frame logic: if visited already but audio finished
+  if (visited && !audioStarted) {
+    messageShown = true;
+    freezeFrame = createGraphics(width, height);
+    freezeFrame.background(245);
+    freezeFrame.fill(0);
+    freezeFrame.textSize(12);
+    freezeFrame.text("This was a one-time experience.\nNo turning back.", width/2, height/2);
+    noLoop(); // stop draw loop
+  }
 }
 
 function draw() {
   background(245);
 
-  // CASE: Freeze frame + thank you message
+  // Freeze frame + thank you message
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
     noStroke();
@@ -266,8 +265,8 @@ function draw() {
     return;
   }
 
-  // CASE: Rings animation (audio playing normally)
-  if (hasPlayed && !alreadyVisited) {
+  // Ring animation (only if audio is playing)
+  if (hasPlayed) {
     translate(width / 2, height / 2);
     analyser.getByteTimeDomainData(dataArray);
 
@@ -277,7 +276,7 @@ function draw() {
       sum += abs(val);
     }
     let average = sum / dataArray.length;
-    let amp = map(average, 0, 64, 5, 35);
+    let amp = map(average, 0, 128, 5, 50);
 
     let rings = 20;
     let baseRadius = 40;
@@ -301,8 +300,8 @@ function draw() {
     }
   }
 
-  // CASE: First-time visit with no audio played yet → optional prompt text
-  if (!hasPlayed && !alreadyVisited) {
+  // First-time user prompt
+  if (!hasPlayed && !visited) {
     fill(0);
     noStroke();
     textSize(12);
@@ -314,6 +313,7 @@ function playSound() {
   audioCtx.resume();
   audio.play();
   hasPlayed = true;
+  audioStarted = true;
   localStorage.setItem('audioStarted', 'true');
 
   button.html('playing...');
