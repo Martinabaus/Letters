@@ -364,38 +364,36 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = `
-  Hola amigas, hace tiempo que no les escribo una carta.(Bueno esta no es escrita pero es leída) En estos momentos, estos últimos meses he pensado mucho en ustedes.Tal vez por que no les he visto, tal vez por que no hemos hablado y tanto de su lado como del mio han pasado tantas cosas, todo ha cambiado, ha pasado, ha evolucionado...
-Así es la vida, ¿no?
+  let letterText = `Hola amigas, hace tiempo que no les escribo una carta.(Bueno esta no es escrita pero es leida) En estos momentos, estos ultimos meses he pensado mucho en ustedes.Tal vez por que no les he visto, tal vez por que no hemos hablado y tanto de su lado como del mio han pasado tantas cosas, todo ha cambiado, ha pasado, ha evolucionado...
+Asi es la vida, ¿no?
 
-A veces me doy cuenta de que ha pasado mucho tiempo desde la última vez que nos vimos, y se me hace muy loco.
-Siempre está esa idea de que podríamos vernos, pero al final, siempre sale algo o bueno en estos dos años eso ha sido...
+A veces me doy cuenta de que ha pasado mucho tiempo desde la ultima vez que nos vimos, y se me hace muy loco.
+Siempre esta esa idea de que podriamos vernos, pero al final, siempre sale algo o bueno en estos dos anos eso ha sido...
 
-Quería contarles un poco de mi vida últimamente. Desde China que fue más o menos cuando tuvimos nuestra llamada anual, la última vez que hablamos, han pasado muchas cosas. Y no sé por qué, pero cuando pienso en ustedes, siempre me nace un cariño muy grande.
-Eso me parece lindo, porque me llena el corazón de una manera difícil de explicar. Es como si estuvieran presentes sin realmente estarlo. como una ausencia presente… ¿o una presencia que no se ve pero sí se siente? No sé
+Queria contarles un poco de mi vida ultimamente. Desde China que fue mas o menos cuando tuvimos nuestra llamada anual, la ultima vez que hablamos, han pasado muchas cosas. Y no se por que, pero cuando pienso en ustedes, siempre me nace un carino muy grande.
+Eso me parece lindo, porque me llena el corazon de una manera dificil de explicar. Es como si estuvieran presentes sin realmente estarlo. como una ausencia presente… ¿o una presencia que no se ve pero si se siente? No se
 
-Desde que volví de China, hay algo que se quedó conmigo. No solo los lugares, sino las personas que conocí allá. Algunas llegaron como si ya las hubiera conocido antes. Como si no fueran nuevas, sino simplemente reencontradas. ¿les ha pasado alguna vez? Tal vez si...
-Es esa sensación de que alguien no entra en tu vida, sino que vuelve. Que su presencia no comienza, sino que continúa algo que no sabías que existía, mas o menos.
+Desde que volvi de China, hay algo que se quedo conmigo. No solo los lugares, sino las personas que conoci alla. Algunas llegaron como si ya las hubiera conocido antes. Como si no fueran nuevas, sino simplemente reencontradas. ¿les ha pasado alguna vez? Tal vez si...
+Es esa sensacion de que alguien no entra en tu vida, sino que vuelve. Que su presencia no comienza, sino que continua algo que no sabias que existia, mas o menos.
 
-En esos encuentros empecé a pensar distinto, a mirar distinto también, supongo.
-Las cosas pequeñas me hablaban más.
-Empecé a pensar más en los objetos, en el tiempo, en las emociones que no tienen nombre. (Esa es una forma poetica de hablar de mi tesis. Estoy contándoles mi tesis ahí)
-A veces me preguntaba si todo lo que sentía allá venía solo de mí o si eran las calles, las luces, los ritmos, que pensaban conmigo también.
+En esos encuentros empece a pensar distinto, a mirar distinto tambien, supongo.
+Las cosas pequenas me hablaban mas.
+Empece a pensar mas en los objetos, en el tiempo, en las emociones que no tienen nombre. (Esa es una forma poetica de hablar de mi tesis. Estoy contandoles mi tesis ahi)
+A veces me preguntaba si todo lo que sentia alla venia solo de mi o si eran las calles, las luces, los ritmos, que pensaban conmigo tambien.
 
-Tengo algunos planes, pero no están tan fijos todavía.
-Más bien son direcciones. Y también, quizás, reencontrarme con ustedes en algún momento, sería chévere... (En esa parte les estoy diciendo que mi vida está un poco borrosa en este momento)
+Tengo algunos planes, pero no estan tan fijos todavia.
+Mas bien son direcciones. Y tambien, quizas, reencontrarme con ustedes en algun momento, seria chevere... (En esa parte les estoy diciendo que mi vida esta un poco borrosa en este momento)
 
-Sobre eso que decía antes la ausencia presente estuve pensando más.
-Y tal vez quizás alguien ya escribió sobre eso, tengo que investigarlo.
-Y es que siento que están aunque no estén. Como si nuestra relación no necesitara la presencia constante para seguir existiendo. Como familix que no he visto en mucho tiempo 
-A veces una memoria o un pensamiento fugaz hace que aparezcan.Y no es nostalgia, es algo más suave. Más lleno. Como Saudade en portuges 
-Como si el cariño no se borrara con la distancia, sino que se escondiera en otros gestos, de la memoria.
+Sobre eso que decia antes la ausencia presente estuve pensando mas.
+Y tal vez quizas alguien ya escribio sobre eso, tengo que investigarlo.
+Y es que siento que estan aunque no esten. Como si nuestra relacion no necesitara la presencia constante para seguir existiendo. Como familix que no he visto en mucho tiempo
+A veces una memoria o un pensamiento fugaz hace que aparezcan.Y no es nostalgia, es algo mas suave. Mas lleno. Como Saudade en portuges
+Como si el carino no se borrara con la distancia, sino que se escondiera en otros gestos, de la memoria.
 
-A veces creo que este cariño tan fuerte que siento por ustedes no viene solo de este tiempo.
-Sino de otra vida, o de otra época, de otra forma de existir.
-No sé cómo explicarlo, pero hay algo muy profundo que me acompaña.
-Y nada este mail es para decirles que en serio hay que llamarse, les quiero mucho y voilà eso... 
-
+A veces creo que este carino tan fuerte que siento por ustedes no viene solo de este tiempo.
+Sino de otra vida, o de otra epoca, de otra forma de existir.
+No se como explicarlo, pero hay algo muy profundo que me acompana.
+Y nada este mail es para decirles que en serio hay que llamarse, les quiero mucho y voila eso...
  
 `.trim();
 
