@@ -271,8 +271,8 @@ function draw() {
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
-    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 37); 
-    let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
+    let hueOsc = map(sin(frameCount * 0.02 + i * 0.5), -1, 1, 37, 120); 
+    let hueNoise = noise(i * 0.5, frameCount * 0.02) * 5;
     stroke((hueOsc + hueNoise) % 360, 90, 100); 
     strokeWeight(1.5);
 
