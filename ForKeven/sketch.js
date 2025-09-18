@@ -50,7 +50,7 @@ function setup() {
   button.style('color', '#f80303ff');
   button.style('border', '1px solid #fefe02ff');
   button.style('font-family', 'monospace');
-  centerButton();
+  button.position(width / 2 - 18, height / 2 - 20);
 
   button.mousePressed(playSound);
 }
@@ -134,7 +134,7 @@ function playSound() {
       button.html('■');
       button.removeAttribute('disabled');
       button.position(width / 2 - 20, height / 2 - 20);
-      button.style('color', '#26de06ff');
+      button.style('color', '#de0606ff');
 
       messageShown = true;
       showDownloadButton();

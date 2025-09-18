@@ -249,7 +249,7 @@ function setup() {
   button.style('color', '#26de06ff');
   button.style('border', '1px solid #fefe02ff');
   button.style('font-family', 'monospace');
-  centerButton();
+  button.position(width / 2 - 18, height / 2 - 20);
 
   button.mousePressed(playSound);
 }
