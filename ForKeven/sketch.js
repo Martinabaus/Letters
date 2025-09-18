@@ -157,26 +157,27 @@ function showDownloadButton() {
 function downloadLetter() {
   let letterText = `Hey Keven,
 
-Lately I've been thinking a lot about what it really means to live authentically. People often say it's about “being true to yourself.” But… if the self is always changing, shaped by time, chance, and others... then which version of ourselves is the true one? Maybe that's why it makes sense to talk about authenticity not just of the self, but of the authenticity of an era. This tension opens another way of seeing authenticity, not as the essence of a stable self, but as something related to the flow of time itself and to the ambiguity and truth carried within an era. 
+Lately I've been thinking a lot about what it really means to live authentically. People often say it's about being true to yourself. But if the self is always changing, shaped by time, chance, and others... then which version of ourselves is the true one? Maybe that's why it makes sense to talk about authenticity not just of the self, but of the authenticity of an era. This tension opens another way of seeing authenticity, not as the essence of a stable self, but as something related to the flow of time itself and to the ambiguity and truth carried within an era. 
 
-I wanted to share this with you because those four months we lived together… they felt like a small, intense era in my life.
+I wanted to share this with you because those four months we lived together they felt like a small, intense era in my life.
 I truly cherish them, the ordinary moments and the little adventures alike.
-Cooking together, wandering through the streets, climbing and laughing at silly things only we seemed to notice..
-Those nights we stayed up talking about everything and nothing, talking in depth philosophically about our design points of view and many of those other topics. You brought so much fun and energy to that semester. You have this way of making things feel lighter, more playful and you're a thoughtful and understanding panther. Being with you made me reflect on how I see the world, on my own stubbornness, on my way of explaining things, among others. It was a period of learning, of shifting and bending… (like billie eilish)
+Cooking together, wandering through the streets, climbing and laughing at silly things only we seemed to notice...
+Those nights we stayed up talking about everything and nothing, talking in depth philosophically about our design points of view and many of those other topics. You brought so much fun and energy to that semester. You have this way of making things feel lighter, more playful and you're a thoughtful and understanding panther. Being with you made me reflect on how I see the world, on my own stubbornness, on my way of explaining things, among others. It was a period of learning, of shifting and bending (like billie eilish)
 I'll always remember those moments with warmth and I think we were really lucky to have this time together. Living with a friend, especially someone you meet on exchange is usually ephemeral, it doesn't always happen. And to not only share daily life, but also to grow together, as pengyous and simply as human beings that feels even more rare sometimes.
 
-Maybe authenticity isn't about finding a fixed core. Maybe it's about being honest with ourselves. Honest with our contradictions. Maybe living authentically is about embracing being il paradosso (the contradictions, the uncertainties… the moments when you don't fit neatly into any pattern.) It's being both strong and fragile, certain and lost, joyful and afraid. Being myss keta dai 
+Maybe authenticity isn't about finding a fixed core. Maybe it's about being honest with ourselves. Honest with our contradictions. Maybe living authentically is about embracing being il paradosso (the contradictions, the uncertainties, the moments when you don't fit neatly into any pattern.) It's being both strong and fragile, certain and lost, joyful and afraid. Being myss keta dai 
 
-If I were to crystallize that period… I think the crystal would be small, because it was brief.
+If I were to crystallize that period I think the crystal would be small, because it was brief.
 Spiky, because it was intense.
 But one big era, with a few surfaces, a reflection of the routine of our daily life together.
-The intimacy of sharing ordinary days… and the joy you brought into that time.
+The intimacy of sharing ordinary days and the joy you brought into that time.
 That's why I think of it as the authenticity of this era, because it held nothing back. It was real in every detail, lived fully, with all its contradictions, its tenderness, and its laughter. And for me, that's what makes an era feel true.
 
 I would really love, someday, to see Italy through your eyes as you said in the whatsapp message you sent me the day you left, maybe go to Napoli to find that statue, or going to the mountains, or the sea in Ancona.
 
 
-Thank you, Keven… for being part of that era, for being yourself, and for letting me share it with you. E forse è in questa condizione di intersezione tra l'onirico e il pragmatico che colloco questo tempo con te, dove i giorni ordinari erano sfiorati da qualcosa di più grande a 160 bpm, 
+Thank you, Keven for being part of that era, for being yourself, and for letting me share it with you. E forse e in questa condizione di intersezione tra l'onirico e il pragmatico che colloco questo tempo con te, dove i giorni ordinari erano sfiorati da qualcosa di piu grande,
+a 160 bpm, 
 
 Martina 
 
