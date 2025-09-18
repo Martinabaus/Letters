@@ -293,7 +293,7 @@ function draw() {
   for (let i = 0; i < rings; i++) {
 
   let hueOsc = (frameCount * 2 + i * 20) % 360;
-  let hueNoise = (noise(i * 0.3, frameCount * 0.01) - 0.5) * 60; 
+  let hueNoise = (noise(i * 0.2, frameCount * 0.01) - 0.5) * 60; 
   let hue = (hueOsc + hueNoise + 360) % 360;
 
   stroke(hue, 90, 100);
@@ -359,21 +359,21 @@ function showDownloadButton() {
   dl.style('color', '#333');
   dl.style('border', '1px solid #333');
   dl.style('font-family', 'monospace');
-  dl.position(width / 2 - 70, height / 1.1);
+  dl.position(width / 2 - 50, height / 1.1);
   dl.mousePressed(downloadLetter);
 }
 
 function downloadLetter() {
   let letterText = `Hola amigas, hace tiempo que no les escribo una carta.(Bueno esta no es escrita pero es leida) En estos momentos, estos ultimos meses he pensado mucho en ustedes.Tal vez por que no les he visto, tal vez por que no hemos hablado y tanto de su lado como del mio han pasado tantas cosas, todo ha cambiado, ha pasado, ha evolucionado...
-Asi es la vida, ¿no?
+Asi es la vida, no?
 
 A veces me doy cuenta de que ha pasado mucho tiempo desde la ultima vez que nos vimos, y se me hace muy loco.
 Siempre esta esa idea de que podriamos vernos, pero al final, siempre sale algo o bueno en estos dos anos eso ha sido...
 
 Queria contarles un poco de mi vida ultimamente. Desde China que fue mas o menos cuando tuvimos nuestra llamada anual, la ultima vez que hablamos, han pasado muchas cosas. Y no se por que, pero cuando pienso en ustedes, siempre me nace un carino muy grande.
-Eso me parece lindo, porque me llena el corazon de una manera dificil de explicar. Es como si estuvieran presentes sin realmente estarlo. como una ausencia presente… ¿o una presencia que no se ve pero si se siente? No se
+Eso me parece lindo, porque me llena el corazon de una manera dificil de explicar. Es como si estuvieran presentes sin realmente estarlo. como una ausencia presente… o una presencia que no se ve pero si se siente? No se
 
-Desde que volvi de China, hay algo que se quedo conmigo. No solo los lugares, sino las personas que conoci alla. Algunas llegaron como si ya las hubiera conocido antes. Como si no fueran nuevas, sino simplemente reencontradas. ¿les ha pasado alguna vez? Tal vez si...
+Desde que volvi de China, hay algo que se quedo conmigo. No solo los lugares, sino las personas que conoci alla. Algunas llegaron como si ya las hubiera conocido antes. Como si no fueran nuevas, sino simplemente reencontradas. Les ha pasado alguna vez? Tal vez si...
 Es esa sensacion de que alguien no entra en tu vida, sino que vuelve. Que su presencia no comienza, sino que continua algo que no sabias que existia, mas o menos.
 
 En esos encuentros empece a pensar distinto, a mirar distinto tambien, supongo.
