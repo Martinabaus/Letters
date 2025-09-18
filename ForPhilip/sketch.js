@@ -271,11 +271,17 @@ function draw() {
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
-    let hueOsc = map(sin(frameCount * 0.02 + i * 0.5), -1, 1, 37, 120); 
-    let hueNoise = noise(i * 0.5, frameCount * 0.02) * 5;
-    stroke((hueOsc + hueNoise) % 360, 90, 100); 
+    let hueOsc = map(sin(frameCount * 0.02 + i * 0.5), -1, 1, 30, 120); 
+    let hue = constrain(hueOsc, 30, 120);
+    // Control saturation & brightness to force brown→green look
+    let sat = 90;
+    let bri = map(hue, 30, 120, 60, 100); // darker at brown, lighter at green
+     
+    stroke(hue, sat, bri);
+
     strokeWeight(1.5);
 
+   
     let r = baseRadius + i * 8;
     beginShape();
     for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
