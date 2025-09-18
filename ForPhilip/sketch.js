@@ -185,14 +185,16 @@ Martina
 }
 */
 
-let audio;
+let audio; 
 let audioCtx;
 let analyser;
 let source;
 let dataArray;
+let hasPlayed = false;
 let button;
 let messageShown = false;
 let freezeFrame;
+let alreadyVisited = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -202,11 +204,10 @@ function setup() {
   rectMode(CENTER);
   colorMode(HSB, 360, 100, 100, 1);
 
-  const alreadyVisited = localStorage.getItem('visited') === 'true';
-  const audioStarted = localStorage.getItem('audioStarted') === 'true';
+  alreadyVisited = localStorage.getItem('visited') === 'true';
 
-  // If revisiting or refreshed mid-play → block
-  if (alreadyVisited || audioStarted) {
+  if (alreadyVisited) {
+    // Show one-time message immediately
     background(245);
     fill(0);
     textSize(12);
@@ -215,7 +216,7 @@ function setup() {
     return;
   }
 
-  // Setup audio
+  // Setup audio if not visited
   audio = new Audio('Philip.mp3');
   audio.crossOrigin = "anonymous";
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -228,21 +229,24 @@ function setup() {
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
 
-  // Play button
   button = createButton('▸');
   button.style('font-size', '16px');
   button.style('padding', '8px 16px');
   button.style('background', 'transparent');
   button.style('color', '#26de06ff');
-  button.style('border', '1px solid #8a5500ff');
+  button.style('border', '1px solid #af6f00ff');
   button.style('font-family', 'monospace');
-  button.position(width / 2 - 18, height / 2 - 20);
+  button.position(width / 2 - 18 , height / 2 - 20);
+
   button.mousePressed(playSound);
 }
 
 function draw() {
+  if (alreadyVisited) return; // Already handled in setup
+
   if (messageShown) {
     if (freezeFrame) image(freezeFrame, 0, 0);
+
     noStroke();
     fill(0);
     textSize(10);
@@ -250,12 +254,11 @@ function draw() {
     return;
   }
 
-  if (!analyser) return; // safety check
-
   background(245);
   translate(width / 2, height / 2);
 
   analyser.getByteTimeDomainData(dataArray);
+
   let sum = 0;
   for (let i = 0; i < dataArray.length; i++) {
     let val = dataArray[i] - 128;
@@ -268,9 +271,9 @@ function draw() {
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
-    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 38);
+    let hueOsc = map(sin(frameCount * 0.08 + i * 0.5), -1, 1, 120, 37); 
     let hueNoise = noise(i * 0.5, frameCount * 0.05) * 10;
-    stroke((hueOsc + hueNoise) % 360, 90, 100);
+    stroke((hueOsc + hueNoise) % 360, 90, 100); 
     strokeWeight(1.5);
 
     let r = baseRadius + i * 8;
@@ -286,31 +289,43 @@ function draw() {
   }
 }
 
+function centerButton() {
+  const btnWidth = 80;
+  const btnHeight = 40;
+  button.position((windowWidth - btnWidth) / 1.95, (windowHeight - btnHeight) / 2);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  if (!alreadyVisited && button) centerButton();
+}
+
 function playSound() {
-  // Mark audio started so refresh mid-play is blocked
-  localStorage.setItem('audioStarted', 'true');
+  if (!hasPlayed) {
+    audioCtx.resume();
+    audio.play();
+    hasPlayed = true;
 
-  audioCtx.resume();
-  audio.play();
-
-  button.html('playing...');
-  button.attribute('disabled', '');
-  button.position(width / 2 - 50, height * 0.9);
-
-  audio.onended = () => {
-    freezeFrame = get();
-    button.html('■');
-    button.removeAttribute('disabled');
-    button.position(width / 2 - 20, height / 2 - 20);
-    button.style('color', '#26de06ff');
-
-    messageShown = true;
-
-    // Mark fully visited
+    // Mark as visited immediately
     localStorage.setItem('visited', 'true');
-    localStorage.removeItem('audioStarted');
-    showDownloadButton();
-  };
+
+    button.html('playing...');
+    button.attribute('disabled', '');
+    const bottomX = width / 2 - 50;
+    const bottomY = height * 0.9;
+    button.position(bottomX, bottomY);
+
+    audio.onended = () => {
+      freezeFrame = get();
+      button.html('■');
+      button.removeAttribute('disabled');
+      button.position(width / 2 - 20, height / 2 - 20);
+      button.style('color', '#26de06ff');
+
+      messageShown = true;
+      showDownloadButton();
+    };
+  }
 }
 
 function showDownloadButton() {
@@ -326,7 +341,8 @@ function showDownloadButton() {
 }
 
 function downloadLetter() {
-  let letterText = `Dear Philip Lie,
+  let letterText = `
+Dear Philip Lie,
 
 I was really happy to discover that you also like letters. There's something so gentle and intentional about taking the time to write, to put thoughts and feelings into words for someone you care about. I used to write a lot when I was younger. Back then, I think I truly believed in the quiet power of letters.
 Not everyone appreciates this format, especially now in our digital era where messages come and go so quickly. And yet, somehow, letters, whether read on paper or listened to, have this subtle ability to touch us deeply. They ask us to slow down, to really feel the intention behind the words. Even this one, which you're hearing now, carries that same thoughtfulness.
@@ -337,20 +353,13 @@ Then i thought that is actually being nice and I realized kindness, it's a kind 
 So I wanted to thank you for sharing your maps, your letters, and your thoughts with me. For being my pengyou. It reminds me that being nice isn't about what we say or do, it's about the care we put into noticing one another, even in small and quiet ways.
 
 With warmth,
-Martina`;
+Martina
+`.trim();
+
   let blob = new Blob([letterText], { type: 'text/plain' });
   let url = URL.createObjectURL(blob);
   let a = createA(url, 'letter.txt');
   a.attribute('download', 'letter.txt');
   a.hide();
   a.elt.click();
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  if (!localStorage.getItem('visited') && !localStorage.getItem('audioStarted')) {
-    const btnWidth = 80;
-    const btnHeight = 40;
-    button.position((windowWidth - btnWidth) / 1.95, (windowHeight - btnHeight) / 2);
-  }
 }

@@ -357,8 +357,28 @@ function downloadLetter() {
   let letterText = `
 Dear Monica,
 
-This is a lived letter a way to thank you for being such a lovely pengyou...
-[rest of your letter here]
+This is a lived letter a way to thank you for being such a lovely pengyou. You're always so thoughtful, so sweet, and I feel lucky for the days we shared walking around, talking, discovering things together. It felt a little like traveling not only through a place, but also through ideas, through each other.
+
+One of the things we spoke about was love, whether it is a choice or maybe a force.
+And maybe it's a bit like traveling.
+
+When you set out on a trip, there's intention you book a train, pack your bag, choose a destination. But then, the real journey is often what you didn't plan: the detour, the stranger you meet, the street you turn onto by accident. In the same way, falling in love feels like being swept up into the unknown, a force you can't quite control, like going into a path you didn't expect.
+But staying in love i think that's more like the daily part of traveling. Choosing to keep going even when you're tired, even when the weather changes. Choosing to walk one more street, to sit down and listen, to notice the details.
+And maybe, just like traveling, love is also about getting to know yourself. You discover parts of yourself reflected in another person, but also in the silences, in the moments of being lost, in the small decisions along the way.
+
+Some people say that we don't love people for their traits, but for something unnamable like the atmosphere of a city you can't explain, but you feel. Others say love is not only a feeling, but an act a way of being with someone, the same way traveling isn't just moving but how you move through the world.
+Maybe love is both: A wild force that enters without knocking, and a quiet choice we make every day with another, and with ourselves.
+It's like setting out on a journey without a map:
+you can choose to move forward, to explore, to stay open to what appears,
+and in the process, you discover not just the world around you,
+but who you are when you're on the road.
+
+I'm glad we got to travel a little together, not just through streets and days, but through thoughts and moments.And somehow, in the middle of all of that moving, I notice a bit more of who I am. and I hope the journey is doing the same for you.
+
+Big hugs, keep traveling and loving!
+
+Con cariño,
+Martina 
 `.trim();
 
   let blob = new Blob([letterText], { type: 'text/plain' });
