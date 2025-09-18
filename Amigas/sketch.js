@@ -291,30 +291,17 @@ function draw() {
   let baseRadius = 40;
 
   for (let i = 0; i < rings; i++) {
-  let hueSpeed = 0.6;     // smaller => slower color fade
-  let hueOffset = 14;     // how much each ring is shifted in hue
-  let noiseHueRange = 18; // additional noise-based hue wobble (kept small)
-  let satBase = 85;       // base saturation
-  let briBase = 92;       // base brightness
 
-  // main hue that cycles over time and across rings
-  let baseHue = (frameCount * hueSpeed + i * hueOffset) % 360;
+  let hueOsc = (frameCount * 2 + i * 20) % 360;
+  let hueNoise = (noise(i * 0.3, frameCount * 0.01) - 0.5) * 60; 
+  let hue = (hueOsc + hueNoise + 360) % 360;
 
-  // gentle noise to add organic variation but kept small so colors don't explode
-  let hueNoise = (noise(i * 0.3, frameCount * 0.01) - 0.5) * 2 * noiseHueRange;
-  let hue = (baseHue + hueNoise + 360) % 360; // safe wrap 0..359
-
-  // optional subtle per-ring saturation/brightness variation
-  let sat = constrain(satBase + map(i, 0, rings - 1, -10, 10) + noise(i * 0.2) * 6, 40, 100);
-  let bri = constrain(briBase + map(i, 0, rings - 1, -12, 6) + noise(i * 0.15, 10) * 6, 30, 100);
-
-  stroke(hue, sat, bri);
-  strokeWeight(1.2);
+  stroke(hue, 90, 100);
+  strokeWeight(1.5);
 
   let r = baseRadius + i * 8;
   beginShape();
   for (let a = 0; a < TWO_PI + 0.1; a += 0.05) {
-    // keep the wave motion similar to before but you can increase amp for stronger motion
     let noiseVal = noise(cos(a) * 1.2 + 1, sin(a) * 1.2 + 1, frameCount * 0.015 + i * 0.25);
     let wave = map(noiseVal, 0, 1, -amp, amp);
     let x = cos(a) * (r + wave);
